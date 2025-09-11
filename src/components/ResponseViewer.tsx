@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import CodeMirror from '@uiw/react-codemirror';
 import { json } from '@codemirror/lang-json';
@@ -9,6 +9,8 @@ interface ResponseData {
   statusText: string;
   body: string;
   headers: Record<string, string>;
+  duration: number;
+  size: number;
 }
 
 interface ResponseViewerProps {
@@ -36,11 +38,21 @@ export default function ResponseViewer({ data, loading }: ResponseViewerProps) {
   return (
     <div>
       <h3>Response</h3>
-      <div>
-        <strong>Status:</strong> {data.status} {data.statusText}
+
+      <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
+        <span>
+          <strong>Status:</strong> {data.status} {data.statusText}
+        </span>
+        <span>
+          <strong>Time:</strong> {data.duration} ms
+        </span>
+        <span>
+          <strong>Size:</strong> {data.size} bytes
+        </span>
       </div>
+
       <h4>Body:</h4>
-      
+
       <CodeMirror
         value={formattedBody}
         height="300px"

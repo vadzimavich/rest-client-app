@@ -17,6 +17,8 @@ const mockSuccessResponse = {
     "content-type": "application/json; charset=utf-8",
     "x-powered-by": "Express",
   },
+  duration: 128,
+  size: 292,
 };
 
 type ResponseData = typeof mockSuccessResponse | null;
