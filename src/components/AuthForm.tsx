@@ -49,10 +49,13 @@ export default function AuthForm({ mode }: AuthFormProps) {
         await createUserWithEmailAndPassword(auth, email, password);
       }
       router.push('/');
-    } catch (err: any) {
-      const friendlyMessage = err.message
-        .replace('Firebase: Error ', '')
-        .replace(/\(auth\/.*\)\.?/, '');
+    } catch (err: unknown) {
+      let friendlyMessage = 'An unexpected error occurred.';
+      if (err instanceof Error) {
+        friendlyMessage = err.message
+          .replace('Firebase: Error ', '')
+          .replace(/\(auth\/.*\)\.?/, '');
+      }
       setError(friendlyMessage);
     }
   };
