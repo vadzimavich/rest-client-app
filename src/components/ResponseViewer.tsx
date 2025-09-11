@@ -1,5 +1,9 @@
 "use client";
 
+import CodeMirror from '@uiw/react-codemirror';
+import { json } from '@codemirror/lang-json';
+import { vscodeDark } from '@uiw/codemirror-theme-vscode'; // theme can be changed
+
 interface ResponseData {
   status: number;
   statusText: string;
@@ -36,9 +40,15 @@ export default function ResponseViewer({ data, loading }: ResponseViewerProps) {
         <strong>Status:</strong> {data.status} {data.statusText}
       </div>
       <h4>Body:</h4>
-      <pre style={{ background: '#f4f4f4', padding: '1rem', whiteSpace: 'pre-wrap' }}>
-        <code>{formattedBody}</code>
-      </pre>
+      
+      <CodeMirror
+        value={formattedBody}
+        height="300px"
+        extensions={[json()]}
+        theme={vscodeDark}
+        readOnly={true}
+      />
+
     </div>
   );
 }
