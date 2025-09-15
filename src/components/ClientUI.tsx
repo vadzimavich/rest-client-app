@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
+import { useDebounce } from '@/hooks/useDebounce';
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { RequestState, RequestHeader, HttpMethod } from "@/types/request";
 import MethodSelector from "@/components/MethodSelector";
@@ -67,6 +68,7 @@ export default function ClientUI() {
   const [error, setError] = useState<string | null>(null);
 
   const isInitialLoad = useRef(true);
+  const debouncedRequestState = useDebounce(requestState, 500);
 
   // auto refresh URL effects
   useEffect(() => {
@@ -81,20 +83,20 @@ export default function ClientUI() {
     if (isInitialLoad.current) return;
 
     const params = new URLSearchParams();
-    params.set('method', requestState.method);
+    params.set('method', debouncedRequestState.method);
     
-    const encodedUrl = safeEncode(requestState.url);
+    const encodedUrl = safeEncode(debouncedRequestState.url);
     if (encodedUrl) params.set('url', encodedUrl);
 
-    const encodedBody = safeEncode(requestState.body);
+    const encodedBody = safeEncode(debouncedRequestState.body);
     if (encodedBody) params.set('body', encodedBody);
     
-    requestState.headers.forEach(h => {
+    debouncedRequestState.headers.forEach(h => {
       if (h.key) params.set(h.key, h.value);
     });
 
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [requestState, router, pathname]);
+  }, [debouncedRequestState, router, pathname]); 
 
   const handlePrettify = () => {
     if (!requestState.body) return;
