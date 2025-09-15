@@ -6,19 +6,19 @@ declare module 'postman-collection' {
 }
 
 declare module 'postman-code-generators' {
-  interface PostmanLanguage {
+  interface PostmanCodeGenerators {
     convert: (
+      language: string,
+      variant: string,
       request: import('postman-collection').Request,
       options: Record<string, unknown>,
       callback: (error: Error | null, snippet?: string) => void
     ) => void;
+
+    getLanguage: (lang: string) => unknown | undefined;
+    getOptions: (lang: string, variant: string) => Record<string, unknown>;
   }
 
-  interface CodeGenerators {
-    getLanguage(lang: string): PostmanLanguage | undefined;
-    getOptions(lang: PostmanLanguage, variant: string): Record<string, unknown>;
-  }
-
-  const main: CodeGenerators;
+  const main: PostmanCodeGenerators;
   export = main;
 }

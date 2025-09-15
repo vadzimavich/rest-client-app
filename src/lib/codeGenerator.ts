@@ -1,13 +1,15 @@
-const { Request } = require('postman-collection');
-const postmanCodeGenerators = require('postman-code-generators');
-
 import { RequestState } from '@/types/request';
 
-export function generateCodeSnippet(
+export async function generateCodeSnippet(
   requestState: RequestState,
   language: string,
   variant: string
 ): Promise<string> {
+  const { Request } = await import('postman-collection');
+  
+  const postmanCodeGeneratorsModule = await import('postman-code-generators');
+  const postmanCodeGenerators = postmanCodeGeneratorsModule.default;
+
   return new Promise((resolve, reject) => {
     try {
       const { method, url, headers, body } = requestState;
