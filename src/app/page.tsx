@@ -1,17 +1,52 @@
+'use client';
+
 import Link from 'next/link';
+import { useAuth } from '@/hooks/useAuth';
+import styles from './page.module.css';
 
 export default function HomePage() {
-  const clientHref = "/client?method=GET&url=&body="; 
+  const { user, loading } = useAuth();
+
+  if (loading) {
+    return <div className={styles.loading}>Loading...</div>;
+  }
+
+  const clientHref = '/client?method=GET&url=&body=';
 
   return (
     <main style={{ padding: '2rem' }}>
-      <h1>Welcome Back!</h1>
-      <nav style={{ display: 'flex', gap: '1rem', marginTop: '1rem' }}>
-        <Link href={clientHref} style={{ textDecoration: 'underline' }}>
-          Go to REST Client
-        </Link>
-        {/* links (history & variables) */}
-      </nav>
+      <div className={styles.container}>
+        {!user ? (
+          <>
+            <h1 className={styles.title}>Welcome!</h1>
+            <p className={styles.text}>
+              Please{' '}
+              <Link href="/signin" className={styles.link}>
+                Sign In
+              </Link>{' '}
+              or{' '}
+              <Link href="/signup" className={styles.link}>
+                Sign Up
+              </Link>{' '}
+              to continue.
+            </p>
+          </>
+        ) : (
+          <>
+            <h1 className={styles.title}>
+              Welcome back, {user.email?.split('@')[0]}!
+            </h1>
+            <nav className={styles.nav}>
+              <Link href="/client" className={styles.button}>
+                REST Client
+              </Link>
+              <Link href="/history" className={styles.button}>
+                History
+              </Link>
+            </nav>
+          </>
+        )}
+      </div>
     </main>
   );
 }

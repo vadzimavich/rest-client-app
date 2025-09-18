@@ -8,6 +8,8 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 
+import styles from "./AuthForm.module.css";
+
 type AuthMode = 'signin' | 'signup';
 
 interface AuthFormProps {
@@ -61,24 +63,32 @@ export default function AuthForm({ mode }: AuthFormProps) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
-      <h2>{title}</h2>
+    <form onSubmit={handleSubmit} className={styles.form}>
+      <h2 className={styles.title}>{title}</h2>
+
       <input
+        className={styles.input}
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
         placeholder="Email"
         required
       />
+
       <input
+        className={styles.input}
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
         placeholder="Password"
         required
       />
-      <button type="submit">{buttonText}</button>
-      {error && <p style={{ color: 'red' }}>{error}</p>}
+
+      <button type="submit" className={styles.button}>
+        {buttonText}
+      </button>
+
+      {error && <p className={styles.error}>{error}</p>}
     </form>
   );
 }

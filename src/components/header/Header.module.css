@@ -1,0 +1,64 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1rem;
+    border-bottom: 1px solid var(--accent);
+    position: sticky;
+    top: 0;
+    background-color: #111111;
+    z-index: 50;
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+}
+
+.link {
+    margin-right: 1rem;
+    text-decoration: none;
+    color: #8b8b8b;
+}
+
+.link:hover {
+    text-decoration: underline;
+}
+
+.button {
+    background: none;
+    border: 1px solid #333;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+}
+
+.button:hover {
+    background-color: #f5f5f5;
+}
+
+.langToggle {
+    margin-right: 1rem;
+    padding: 0.5rem 1.5rem 0.5rem 0.5rem;
+    border: none;
+    border-radius: 4px;
+    background-color: #1b1b1b;
+    background-image: url("/arrow.svg");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 0.75rem auto;
+    cursor: pointer;
+    font-size: 0.8rem;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.langToggle:hover {
+    cursor: pointer;
+    border-color: #999;
+}
+
+.langToggle:focus {
+    outline: none;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}
