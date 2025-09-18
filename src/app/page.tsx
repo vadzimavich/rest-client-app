@@ -11,7 +11,7 @@ export default function HomePage() {
     return <div className={styles.loading}>Loading...</div>;
   }
 
-  const clientHref = '/client?method=GET&url=&body=';
+  const clientHref = `/client?method=GET&url=${btoa('')}&body=${btoa('')}`;
 
   return (
     <main style={{ padding: '2rem' }}>
@@ -37,7 +37,7 @@ export default function HomePage() {
               Welcome back, {user.email?.split('@')[0]}!
             </h1>
             <nav className={styles.nav}>
-              <Link href="/client" className={styles.button}>
+              <Link href={clientHref} className={styles.button}>
                 REST Client
               </Link>
               <Link href="/history" className={styles.button}>
