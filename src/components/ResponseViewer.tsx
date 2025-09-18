@@ -60,7 +60,6 @@ export default function ResponseViewer({ data, loading }: ResponseViewerProps) {
         theme={vscodeDark}
         readOnly={true}
       />
-
     </div>
   );
 }
