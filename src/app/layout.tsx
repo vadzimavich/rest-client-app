@@ -1,14 +1,27 @@
 import './globals.css';
 import { AuthProvider } from '@/components/providers/AuthProvider';
-import Layout from '@/components/mainLayout/MainLayout';
+import Header from '@/components/header/Header';
+import Footer from '@/components/footer/Footer';
 import { geistSans, geistMono } from '@/lib/fonts';
+import { metadata as appMetadata } from '@/lib/metadata';
 
-export default function RootLayout({ children }: { children: React.ReactNode }) {
+// eslint-disable-next-line react-refresh/only-export-components
+export const metadata = appMetadata;
+
+export default function RootLayout({
+  children,
+}: {
+  children: React.ReactNode;
+}) {
   return (
     <html lang="en">
-      <body className={`${geistSans.variable} ${geistMono.variable} app-layout`}>
+      <body
+        className={`${geistSans.variable} ${geistMono.variable} app-layout`}
+      >
         <AuthProvider>
-          <Layout>{children}</Layout>
+          <Header />
+          <main>{children}</main>
+          <Footer />
         </AuthProvider>
       </body>
     </html>

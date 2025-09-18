@@ -1,6 +1,6 @@
-import PrivateRoute from "@/components/PrivateRoute";
+import PrivateRoute from '@/components/PrivateRoute';
 
-export default function HistotyPage() {
+export default function HistoryPage() {
   return (
     <PrivateRoute>
       <h1>History Page</h1>
