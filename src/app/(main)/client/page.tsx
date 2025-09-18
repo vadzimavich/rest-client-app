@@ -1,54 +1,147 @@
-"use client";
+'use client';
 
-import { useState } from "react";
-import PrivateRoute from "@/components/PrivateRoute";
-import ResponseViewer from "@/components/ResponseViewer";
+import { useState } from 'react';
+import PrivateRoute from '@/components/PrivateRoute';
+import { RequestState } from '@/types/request';
+import MethodSelector from '@/components/MethodSelector';
+import HeadersEditor from '@/components/HeadersEditor';
+import CodeMirror from '@uiw/react-codemirror';
+import { json } from '@codemirror/lang-json';
+import { vscodeDark } from '@uiw/codemirror-theme-vscode';
+import ResponseViewer from '@/components/ResponseViewer';
 
-const mockSuccessResponse = {
-  status: 200,
-  statusText: "OK",
-  body: JSON.stringify({
-    userId: 1,
-    id: 1,
-    title: "sunt aut facere repellat provident occaecati excepturi optio reprehenderit",
-    body: "quia et suscipit\nsuscipit recusandae consequuntur expedita et cum\nreprehenderit molestiae ut ut quas totam\nnostrum rerum est autem sunt rem eveniet architecto",
-  }),
-  headers: {
-    "content-type": "application/json; charset=utf-8",
-    "x-powered-by": "Express",
-  },
-  duration: 128,
-  size: 292,
+interface ResponseData {
+  status: number;
+  statusText: string;
+  body: string;
+  headers: Record<string, string>;
+  duration: number;
+  size: number;
+}
+
+const initialRequestState: RequestState = {
+  method: 'GET',
+  url: '',
+  headers: [{ id: crypto.randomUUID(), key: '', value: '' }],
+  body: '',
 };
 
-type ResponseData = typeof mockSuccessResponse | null;
-
 export default function ClientPage() {
-  const [responseData, setResponseData] = useState<ResponseData>(null);
+  const [requestState, setRequestState] =
+    useState<RequestState>(initialRequestState);
+
+  const [responseData, setResponseData] = useState<ResponseData | null>(null);
   const [isLoading, setIsLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+
+  const handleSendRequest = async () => {
+    setIsLoading(true);
+    setResponseData(null);
+    setError(null);
+
+    const headersObject = requestState.headers.reduce(
+      (acc, header) => {
+        if (header.key) {
+          acc[header.key] = header.value;
+        }
+        return acc;
+      },
+      {} as Record<string, string>
+    );
+
+    let parsedBody: unknown;
+    try {
+      parsedBody = JSON.parse(requestState.body);
+    } catch {
+      parsedBody = requestState.body;
+    }
+
+    try {
+      const response = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          method: requestState.method,
+          url: requestState.url,
+          headers: headersObject,
+          body: parsedBody,
+        }),
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        throw new Error(data.error || 'An unknown error occurred');
+      }
+
+      setResponseData(data);
+    } catch (err: unknown) {
+      if (err instanceof Error) {
+        setError(err.message);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handlePrettify = () => {
+    try {
+      const prettyBody = JSON.stringify(JSON.parse(requestState.body), null, 2);
+      setRequestState((prev) => ({ ...prev, body: prettyBody }));
+    } catch (error) {
+      console.error('Invalid JSON for prettifying');
+    }
+  };
 
   return (
     <PrivateRoute>
-      <h1>REST Client Page (Test Bench)</h1>
-      <div style={{ marginBottom: '1rem', display: 'flex', gap: '1rem' }}>
-        <button onClick={() => {
-          setIsLoading(true);
-          setResponseData(null);
-          setTimeout(() => {
-            setIsLoading(false);
-            setResponseData(mockSuccessResponse);
-          }, 1000);
-        }}>
-          Simulate Successful Request
-        </button>
-        <button onClick={() => {
-          setIsLoading(false);
-          setResponseData(null);
-        }}>
-          Clear Response
+      <h1>REST Client</h1>
+      <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
+        <MethodSelector
+          value={requestState.method}
+          onChange={(method) =>
+            setRequestState((prev) => ({ ...prev, method }))
+          }
+        />
+        <input
+          type="text"
+          placeholder="https://api.example.com"
+          style={{ flex: 1 }}
+          value={requestState.url}
+          onChange={(e) =>
+            setRequestState((prev) => ({ ...prev, url: e.target.value }))
+          }
+        />
+        <button onClick={handleSendRequest} disabled={isLoading}>
+          {isLoading ? 'Sending...' : 'Send'}
         </button>
       </div>
-      <hr />
+
+      <HeadersEditor
+        headers={requestState.headers}
+        onChange={(headers) =>
+          setRequestState((prev) => ({ ...prev, headers }))
+        }
+      />
+
+      <div style={{ marginTop: '1rem' }}>
+        <h4>Body</h4>
+        <button onClick={handlePrettify} style={{ marginBottom: '0.5rem' }}>
+          Prettify JSON
+        </button>
+        <CodeMirror
+          value={requestState.body}
+          height="200px"
+          extensions={[json()]}
+          theme={vscodeDark}
+          onChange={(value) =>
+            setRequestState((prev) => ({ ...prev, body: value }))
+          }
+        />
+      </div>
+
+      <hr style={{ margin: '2rem 0' }} />
+      {error && <div style={{ color: 'red' }}>Error: {error}</div>}
       <ResponseViewer data={responseData} loading={isLoading} />
     </PrivateRoute>
   );
