@@ -1,16 +1,17 @@
-"use client";
+'use client';
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
-import { useRouter, usePathname, useSearchParams } from "next/navigation";
-import { RequestState, RequestHeader, HttpMethod } from "@/types/request";
-import MethodSelector from "@/components/MethodSelector";
-import HeadersEditor from "@/components/HeadersEditor";
+import { useRouter, usePathname, useSearchParams } from 'next/navigation';
+import { RequestState, RequestHeader, HttpMethod } from '@/types/request';
+import MethodSelector from '@/components/MethodSelector';
+import HeadersEditor from '@/components/HeadersEditor';
 import CodeMirror from '@uiw/react-codemirror';
 import { json } from '@codemirror/lang-json';
 import { vscodeDark } from '@uiw/codemirror-theme-vscode';
-import ResponseViewer from "@/components/ResponseViewer";
-import CodeGenerator from "@/components/CodeGenerator";
+import ResponseViewer from '@/components/ResponseViewer';
+import CodeGenerator from '@/components/CodeGenerator';
+import { getVariables, substituteVariables } from '@/lib/variables';
 
 interface ResponseData {
   status: number;
@@ -23,20 +24,28 @@ interface ResponseData {
 
 // URL decoding
 const safeDecode = (str: string | null | undefined): string => {
-  if (!str) return "";
-  try { return atob(str); } catch (e) { return ""; }
+  if (!str) return '';
+  try {
+    return atob(str);
+  } catch (e) {
+    return '';
+  }
 };
 
 const safeEncode = (str: string | null | undefined): string => {
-  if (!str) return "";
-  try { return btoa(str); } catch (e) { return ""; }
+  if (!str) return '';
+  try {
+    return btoa(str);
+  } catch (e) {
+    return '';
+  }
 };
 
 const parseStateFromParams = (params: URLSearchParams): RequestState => {
   const method = (params.get('method') as HttpMethod) || 'GET';
   const url = safeDecode(params.get('url'));
   const body = safeDecode(params.get('body'));
-  
+
   const headers: RequestHeader[] = [];
   params.forEach((value, key) => {
     if (key !== 'method' && key !== 'url' && key !== 'body') {
@@ -82,30 +91,40 @@ export default function ClientUI() {
   useEffect(() => {
     if (isInitialLoad.current) return;
 
+    const variables = getVariables();
+    const finalUrl = substituteVariables(debouncedRequestState.url, variables);
+    const finalBody = substituteVariables(
+      debouncedRequestState.body,
+      variables
+    );
+
     const params = new URLSearchParams();
     params.set('method', debouncedRequestState.method);
-    
-    const encodedUrl = safeEncode(debouncedRequestState.url);
+
+    const encodedUrl = safeEncode(finalUrl);
     if (encodedUrl) params.set('url', encodedUrl);
 
-    const encodedBody = safeEncode(debouncedRequestState.body);
+    const encodedBody = safeEncode(finalBody);
     if (encodedBody) params.set('body', encodedBody);
-    
-    debouncedRequestState.headers.forEach(h => {
-      if (h.key) params.set(h.key, h.value);
+
+    debouncedRequestState.headers.forEach((h) => {
+      if (h.key) {
+        const finalHeaderValue = substituteVariables(h.value, variables);
+        params.set(h.key, finalHeaderValue);
+      }
     });
 
     router.replace(`${pathname}?${params.toString()}`, { scroll: false });
-  }, [debouncedRequestState, router, pathname]); 
+  }, [debouncedRequestState, router, pathname]);
 
   const handlePrettify = () => {
     if (!requestState.body) return;
     try {
       const prettyBody = JSON.stringify(JSON.parse(requestState.body), null, 2);
-      setRequestState(prev => ({ ...prev, body: prettyBody }));
+      setRequestState((prev) => ({ ...prev, body: prettyBody }));
       setError(null);
     } catch (err) {
-      setError("Invalid JSON format. Cannot prettify.");
+      setError('Invalid JSON format. Cannot prettify.');
     }
   };
 
@@ -113,19 +132,31 @@ export default function ClientUI() {
     setIsLoading(true);
     setResponseData(null);
     setError(null);
+
+    const variables = getVariables();
+    const finalUrl = substituteVariables(requestState.url, variables);
+    const finalHeaders = requestState.headers.map((header) => ({
+      ...header,
+      value: substituteVariables(header.value, variables),
+    }));
+    const finalBody = substituteVariables(requestState.body, variables);
+
     try {
-      const headersObject = requestState.headers.reduce((acc, header) => {
-        if (header.key) {
-          acc[header.key] = header.value;
-        }
-        return acc;
-      }, {} as Record<string, string>);
-      
+      const headersObject = finalHeaders.reduce(
+        (acc, header) => {
+          if (header.key) {
+            acc[header.key] = header.value;
+          }
+          return acc;
+        },
+        {} as Record<string, string>
+      );
+
       let parsedBody: unknown;
       try {
-        parsedBody = requestState.body ? JSON.parse(requestState.body) : null;
+        parsedBody = finalBody ? JSON.parse(finalBody) : null;
       } catch {
-        parsedBody = requestState.body;
+        parsedBody = finalBody;
       }
 
       const response = await fetch('/api/proxy', {
@@ -133,7 +164,7 @@ export default function ClientUI() {
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           method: requestState.method,
-          url: requestState.url,
+          url: finalUrl,
           headers: headersObject,
           body: parsedBody,
         }),
@@ -143,13 +174,13 @@ export default function ClientUI() {
       if (!response.ok) {
         throw new Error(data.error || 'An unknown proxy error occurred');
       }
-      
+
       setResponseData(data);
     } catch (err: unknown) {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("An unexpected error occurred.");
+        setError('An unexpected error occurred.');
       }
     } finally {
       setIsLoading(false);
@@ -162,14 +193,18 @@ export default function ClientUI() {
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
         <MethodSelector
           value={requestState.method}
-          onChange={(method) => setRequestState(prev => ({ ...prev, method }))}
+          onChange={(method) =>
+            setRequestState((prev) => ({ ...prev, method }))
+          }
         />
         <input
           type="text"
           placeholder="https://api.example.com"
           style={{ flex: 1 }}
           value={requestState.url}
-          onChange={(e) => setRequestState(prev => ({ ...prev, url: e.target.value }))}
+          onChange={(e) =>
+            setRequestState((prev) => ({ ...prev, url: e.target.value }))
+          }
         />
         <button onClick={handleSendRequest} disabled={isLoading}>
           {isLoading ? 'Sending...' : 'Send'}
@@ -177,17 +212,23 @@ export default function ClientUI() {
       </div>
       <HeadersEditor
         headers={requestState.headers}
-        onChange={(headers: RequestHeader[]) => setRequestState(prev => ({ ...prev, headers }))}
+        onChange={(headers: RequestHeader[]) =>
+          setRequestState((prev) => ({ ...prev, headers }))
+        }
       />
       <div style={{ marginTop: '1rem' }}>
         <h4>Body</h4>
-        <button onClick={handlePrettify} style={{ marginBottom: '0.5rem' }}>Prettify JSON</button>
+        <button onClick={handlePrettify} style={{ marginBottom: '0.5rem' }}>
+          Prettify JSON
+        </button>
         <CodeMirror
           value={requestState.body}
           height="200px"
           extensions={[json()]}
           theme={vscodeDark}
-          onChange={(value: string) => setRequestState(prev => ({ ...prev, body: value }))}
+          onChange={(value: string) =>
+            setRequestState((prev) => ({ ...prev, body: value }))
+          }
         />
       </div>
       <CodeGenerator requestState={requestState} />
