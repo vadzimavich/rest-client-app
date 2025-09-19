@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, ChangeEvent } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
+import { useAuth } from '@/hooks/useAuth';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
 import { RequestState, RequestHeader, HttpMethod } from '@/types/request';
 import MethodSelector from '@/components/MethodSelector';
@@ -61,6 +62,7 @@ const parseStateFromParams = (params: URLSearchParams): RequestState => {
 
 // component is authonomous now & doesn't receive props
 export default function ClientUI() {
+  const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
@@ -133,15 +135,26 @@ export default function ClientUI() {
     setResponseData(null);
     setError(null);
 
-    const variables = getVariables();
-    const finalUrl = substituteVariables(requestState.url, variables);
-    const finalHeaders = requestState.headers.map((header) => ({
-      ...header,
-      value: substituteVariables(header.value, variables),
-    }));
-    const finalBody = substituteVariables(requestState.body, variables);
+    // auth check
+    if (!user) {
+      setError('You must be logged in to send requests.');
+      setIsLoading(false);
+      return;
+    }
 
     try {
+      // get token
+      const idToken = await user.getIdToken();
+
+      const variables = getVariables();
+      const finalUrl = substituteVariables(requestState.url, variables);
+      const finalHeaders = requestState.headers.map((header) => ({
+        ...header,
+        value: substituteVariables(header.value, variables),
+      }));
+      const finalBody = substituteVariables(requestState.body, variables);
+
+      // format data before sending to proxy
       const headersObject = finalHeaders.reduce(
         (acc, header) => {
           if (header.key) {
@@ -159,9 +172,13 @@ export default function ClientUI() {
         parsedBody = finalBody;
       }
 
+      // send to proxy
       const response = await fetch('/api/proxy', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
         body: JSON.stringify({
           method: requestState.method,
           url: finalUrl,
@@ -171,10 +188,14 @@ export default function ClientUI() {
       });
 
       const data = await response.json();
+
+      // process response
       if (!response.ok) {
+        // our proxy error
         throw new Error(data.error || 'An unknown proxy error occurred');
       }
 
+      // successful proxy response (even if 404 etc)
       setResponseData(data);
     } catch (err: unknown) {
       if (err instanceof Error) {
@@ -193,7 +214,7 @@ export default function ClientUI() {
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
         <MethodSelector
           value={requestState.method}
-          onChange={(method) =>
+          onChange={(method: HttpMethod) =>
             setRequestState((prev) => ({ ...prev, method }))
           }
         />
@@ -202,7 +223,7 @@ export default function ClientUI() {
           placeholder="https://api.example.com"
           style={{ flex: 1 }}
           value={requestState.url}
-          onChange={(e) =>
+          onChange={(e: ChangeEvent<HTMLInputElement>) =>
             setRequestState((prev) => ({ ...prev, url: e.target.value }))
           }
         />
