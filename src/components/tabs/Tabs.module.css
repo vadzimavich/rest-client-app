@@ -1,0 +1,34 @@
+.tabsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+  }
+  
+  .tabButtons {
+    display: flex;
+    gap: 1rem;
+  }
+  
+  .tabButton {
+    background: none;
+    border: none;
+    padding: 0.5rem 1rem;
+    border-bottom: 2px solid transparent;
+    cursor: pointer;
+    font-weight: 500;
+    color: var(--foreground);
+    transition: border-color 0.2s ease-in-out, font-weight 0.2s;
+  }
+  
+  .tabButton:hover {
+    color: var(--accent);
+  }
+  
+  .active {
+    border-bottom: 2px solid var(--accent);
+  }
+  
+  .tabContent {
+    margin-top: 1rem;
+  }
+  

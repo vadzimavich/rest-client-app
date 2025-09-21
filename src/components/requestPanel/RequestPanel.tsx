@@ -9,6 +9,7 @@ import CodeMirror from '@uiw/react-codemirror';
 import { json } from '@codemirror/lang-json';
 import { vscodeDark } from '@uiw/codemirror-theme-vscode';
 import CodeGenerator from "@/components/codeGenerator/CodeGenerator";
+import Tabs from "@/components/tabs/Tabs";
 import styles from './RequestPanel.module.css';
 
 interface RequestPanelProps {
@@ -97,22 +98,23 @@ export default function RequestPanel({
         </button>
       </div>
 
-      <HeadersEditor
-        headers={requestState.headers}
-        onChange={headers => setRequestState(prev => ({ ...prev, headers }))}
-      />
-
-      <div className={styles.bodyEditor}>
-        <h4>Body</h4>
-        <button onClick={handlePrettify}>Prettify JSON</button>
-        <CodeMirror
-          value={requestState.body}
-          height="200px"
-          extensions={[json()]}
-          theme={vscodeDark}
-          onChange={value => setRequestState(prev => ({ ...prev, body: value }))}
+      <Tabs labels={['Headers', 'Body']}>
+        <HeadersEditor
+          headers={requestState.headers}
+          onChange={headers => setRequestState(prev => ({ ...prev, headers }))}
         />
-      </div>
+
+        <div className={styles.bodyEditor}>
+          <button onClick={handlePrettify}>Prettify JSON</button>
+          <CodeMirror
+            value={requestState.body}
+            height="200px"
+            extensions={[json()]}
+            theme={vscodeDark}
+            onChange={value => setRequestState(prev => ({ ...prev, body: value }))}
+          />
+        </div>
+      </Tabs>
 
       <CodeGenerator requestState={requestState} />
     </div>
