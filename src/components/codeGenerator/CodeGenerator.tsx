@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
 import { RequestState } from '@/types/request';
@@ -13,8 +13,8 @@ import { shell } from '@codemirror/legacy-modes/mode/shell';
 import { csharp } from '@codemirror/legacy-modes/mode/clike';
 import { go } from '@codemirror/legacy-modes/mode/go';
 import { Extension } from '@codemirror/state';
-
-import styles from "./CodeGenerator.module.css";
+import { useTranslations } from 'next-intl';
+import styles from './CodeGenerator.module.css';
 
 interface CodeGeneratorProps {
   requestState: RequestState;
@@ -28,60 +28,101 @@ interface LanguageOption {
 }
 
 const languages: LanguageOption[] = [
-  { lang: 'curl', variant: 'curl', name: 'cURL', extension: () => StreamLanguage.define(shell) },
-  { lang: 'javascript', variant: 'fetch', name: 'JavaScript (Fetch)', extension: () => javascript() },
-  { lang: 'javascript', variant: 'xhr', name: 'JavaScript (XHR)', extension: () => javascript() },
-  { lang: 'nodejs', variant: 'Native', name: 'Node.js (Native)', extension: () => javascript() },
-  { lang: 'python', variant: 'requests', name: 'Python (Requests)', extension: () => python() },
-  { lang: 'java', variant: 'okhttp', name: 'Java (OkHttp)', extension: () => java() },
-  { lang: 'csharp', variant: 'restsharp', name: 'C# (RestSharp)', extension: () => StreamLanguage.define(csharp) },
-  { lang: 'go', variant: 'native', name: 'Go (Native)', extension: () => StreamLanguage.define(go) },
+  {
+    lang: 'curl',
+    variant: 'curl',
+    name: 'cURL',
+    extension: () => StreamLanguage.define(shell),
+  },
+  {
+    lang: 'javascript',
+    variant: 'fetch',
+    name: 'JavaScript (Fetch)',
+    extension: () => javascript(),
+  },
+  {
+    lang: 'javascript',
+    variant: 'xhr',
+    name: 'JavaScript (XHR)',
+    extension: () => javascript(),
+  },
+  {
+    lang: 'nodejs',
+    variant: 'Native',
+    name: 'Node.js (Native)',
+    extension: () => javascript(),
+  },
+  {
+    lang: 'python',
+    variant: 'requests',
+    name: 'Python (Requests)',
+    extension: () => python(),
+  },
+  {
+    lang: 'java',
+    variant: 'okhttp',
+    name: 'Java (OkHttp)',
+    extension: () => java(),
+  },
+  {
+    lang: 'csharp',
+    variant: 'restsharp',
+    name: 'C# (RestSharp)',
+    extension: () => StreamLanguage.define(csharp),
+  },
+  {
+    lang: 'go',
+    variant: 'native',
+    name: 'Go (Native)',
+    extension: () => StreamLanguage.define(go),
+  },
 ];
 
 export default function CodeGenerator({ requestState }: CodeGeneratorProps) {
+  const t = useTranslations('CodeGenerator');
   const [selectedLang, setSelectedLang] = useState(0);
   const [snippet, setSnippet] = useState('');
 
   useEffect(() => {
     if (!requestState.url) {
-      setSnippet('Enter a URL to generate a code snippet.');
+      setSnippet(t('placeholder'));
       return;
     }
 
     const { lang, variant } = languages[selectedLang];
     generateCodeSnippet(requestState, lang, variant)
       .then(setSnippet)
-      .catch(err => setSnippet(`Error generating snippet: ${err.message}`));
-  }, [requestState, selectedLang]);
+      .catch((err) => setSnippet(t('error', { errorMessage: err.message })));
+  }, [requestState, selectedLang, t]);
 
   return (
     <div className={styles.generatorContainer}>
-      <h4 className={styles.title}>Generated Code</h4>
+      <h4 className={styles.title}>{t('title')}</h4>
       <select
         value={selectedLang}
         onChange={(e) => setSelectedLang(Number(e.target.value))}
         className={styles.langSelect}
       >
         {languages.map((lang, index) => (
-          <option key={index} value={index}>{lang.name}</option>
+          <option key={index} value={index}>
+            {lang.name}
+          </option>
         ))}
       </select>
 
-      {!requestState.url ? (
-        <div className={styles.placeholderText}>
-          Enter a URL to generate a code snippet.
-        </div>
-      ) : (
-        <div className={styles.codeContainer}>
-          <CodeMirror
-            value={snippet}
-            height="200px"
-            extensions={[languages[selectedLang].extension()]}
-            theme={vscodeDark}
-            readOnly={true}
-          />
-        </div>
-      )}
+      <div className={styles.codeContainer}>
+        <CodeMirror
+          value={snippet}
+          height="200px"
+          extensions={[
+            typeof languages[selectedLang].extension === 'function'
+              ? (languages[selectedLang].extension as () => Extension)()
+              : languages[selectedLang].extension,
+          ]}
+          theme={vscodeDark}
+          readOnly={true}
+        />
+      </div>
     </div>
   );
 }

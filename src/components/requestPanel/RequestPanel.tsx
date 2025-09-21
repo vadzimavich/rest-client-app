@@ -1,17 +1,19 @@
-"use client";
+'use client';
 
-import { Dispatch, SetStateAction } from "react";
-import { RequestState } from "@/types/request";
-import { ResponseData } from "@/types/response";
-import MethodSelector from "@/components/methodSelector/MethodSelector";
-import HeadersEditor from "@/components/headersEditor/HeadersEditor";
+import { Dispatch, SetStateAction } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { useTranslations } from 'next-intl';
+import { RequestState } from '@/types/request';
+import { ResponseData } from '@/types/response';
+import MethodSelector from '@/components/methodSelector/MethodSelector';
+import HeadersEditor from '@/components/headersEditor/HeadersEditor';
 import CodeMirror from '@uiw/react-codemirror';
 import { json } from '@codemirror/lang-json';
 import { vscodeDark } from '@uiw/codemirror-theme-vscode';
-import CodeGenerator from "@/components/codeGenerator/CodeGenerator";
-import Tabs from "@/components/tabs/Tabs";
+import CodeGenerator from '@/components/codeGenerator/CodeGenerator';
+import Tabs from '@/components/tabs/Tabs';
 import styles from './RequestPanel.module.css';
-import { getVariables, substituteVariables } from '@/lib/variables'; 
+import { getVariables, substituteVariables } from '@/lib/variables';
 
 interface RequestPanelProps {
   requestState: RequestState;
@@ -30,15 +32,17 @@ export default function RequestPanel({
   setError,
   isLoading,
 }: RequestPanelProps) {
+  const t = useTranslations('ClientUI');
+  const { user } = useAuth();
 
   const handlePrettify = () => {
     if (!requestState.body) return;
     try {
       const prettyBody = JSON.stringify(JSON.parse(requestState.body), null, 2);
-      setRequestState(prev => ({ ...prev, body: prettyBody }));
+      setRequestState((prev) => ({ ...prev, body: prettyBody }));
       setError(null);
     } catch {
-      setError("Invalid JSON format. Cannot prettify.");
+      setError(t('prettifyError'));
     }
   };
 
@@ -46,7 +50,16 @@ export default function RequestPanel({
     setIsLoading(true);
     setResponseData(null);
     setError(null);
-    try {  
+
+    if (!user) {
+      setError(t('authError'));
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const idToken = await user.getIdToken();
+
       const variables = getVariables();
       const finalUrl = substituteVariables(requestState.url, variables);
       const finalHeaders = requestState.headers.map((header) => ({
@@ -74,10 +87,13 @@ export default function RequestPanel({
 
       const response = await fetch('/api/proxy', {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
         body: JSON.stringify({
           method: requestState.method,
-          url: finalUrl, 
+          url: finalUrl,
           headers: headersObject,
           body: parsedBody,
         }),
@@ -88,7 +104,7 @@ export default function RequestPanel({
       setResponseData(data);
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
-      else setError("An unexpected error occurred.");
+      else setError('An unexpected error occurred.');
     } finally {
       setIsLoading(false);
     }
@@ -99,33 +115,36 @@ export default function RequestPanel({
       <div className={styles.requestRow}>
         <MethodSelector
           value={requestState.method}
-          onChange={method => setRequestState(prev => ({ ...prev, method }))}
+          onChange={(method) =>
+            setRequestState((prev) => ({ ...prev, method }))
+          }
           className={styles.methodSelect}
         />
         <input
           type="text"
           placeholder="https://api.example.com"
           value={requestState.url}
-          onChange={e => setRequestState(prev => ({ ...prev, url: e.target.value }))}
+          onChange={(e) =>
+            setRequestState((prev) => ({ ...prev, url: e.target.value }))
+          }
         />
         <button onClick={handleSendRequest} disabled={isLoading}>
-          {isLoading ? 'Sending...' : 'Send'}
+          {isLoading ? t('sendingButton') : t('sendButton')}
         </button>
       </div>
 
-      <Tabs labels={['Headers', 'Body']}>
+      <Tabs labels={[t('headersTitle'), t('bodyTitle')]}>
         <HeadersEditor
           headers={requestState.headers}
-          onChange={headers => setRequestState(prev => ({ ...prev, headers }))}
+          onChange={(headers) =>
+            setRequestState((prev) => ({ ...prev, headers }))
+          }
         />
 
         <div className={styles.bodyEditor}>
           <div className={styles.prettifyWrapper}>
-            <button
-              onClick={handlePrettify}
-              className={styles.sendButton}
-            >
-              Prettify JSON
+            <button onClick={handlePrettify} className={styles.sendButton}>
+              {t('prettifyButton')}
             </button>
           </div>
 
@@ -134,11 +153,11 @@ export default function RequestPanel({
             height="200px"
             extensions={[json()]}
             theme={vscodeDark}
-            onChange={value => setRequestState(prev => ({ ...prev, body: value }))}
+            onChange={(value: string) =>
+              setRequestState((prev) => ({ ...prev, body: value }))
+            }
           />
         </div>
-
-
       </Tabs>
 
       <CodeGenerator requestState={requestState} />

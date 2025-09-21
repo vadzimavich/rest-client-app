@@ -1,8 +1,8 @@
-"use client";
+'use client';
 
-import { ReactNode, useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
+import { ReactNode, useEffect } from 'react';
+import { useRouter } from '@/navigation';
+import { useAuth } from '@/hooks/useAuth';
 
 interface PrivateRouteProps {
   children: ReactNode;
@@ -14,7 +14,7 @@ export default function PrivateRoute({ children }: PrivateRouteProps) {
 
   useEffect(() => {
     if (!loading && !user) {
-      router.push("/signin");
+      router.push('/signin');
     }
   }, [user, loading, router]);
 

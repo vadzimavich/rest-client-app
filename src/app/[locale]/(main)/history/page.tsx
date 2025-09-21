@@ -1,10 +1,11 @@
-import Link from 'next/link';
+import { Link } from '@/navigation';
 import { cookies } from 'next/headers';
 import admin from 'firebase-admin';
 import { firestore } from '@/lib/firebase/admin';
 import { HistoryItem } from '@/types/request';
 import PrivateRoute from '@/components/PrivateRoute';
 import styles from './historyPage.module.css';
+import { getTranslations } from 'next-intl/server';
 
 const safeEncode = (str: unknown): string => {
   if (!str) return '';
@@ -18,9 +19,13 @@ const safeEncode = (str: unknown): string => {
 
 async function getHistoryForUser(): Promise<HistoryItem[]> {
   try {
+    const REQUEST_LIMIT = 50;
+
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('session')?.value;
-    if (!sessionCookie) return [];
+    if (!sessionCookie) {
+      return [];
+    }
 
     const decodedToken = await admin.auth().verifySessionCookie(sessionCookie);
     const userId = decodedToken.uid;
@@ -29,15 +34,20 @@ async function getHistoryForUser(): Promise<HistoryItem[]> {
       .collection('history')
       .where('userId', '==', userId)
       .orderBy('timestamp', 'desc')
-      .limit(50)
+      .limit(REQUEST_LIMIT)
       .get();
 
-    if (historySnapshot.empty) return [];
+    if (historySnapshot.empty) {
+      return [];
+    }
 
-    const history: HistoryItem[] = historySnapshot.docs.map((doc) => ({
-      id: doc.id,
-      ...doc.data(),
-    } as HistoryItem));
+    const history: HistoryItem[] = historySnapshot.docs.map((doc) => {
+      const data = doc.data();
+      return {
+        id: doc.id,
+        ...data,
+      } as HistoryItem;
+    });
 
     return history;
   } catch (error) {
@@ -46,31 +56,39 @@ async function getHistoryForUser(): Promise<HistoryItem[]> {
   }
 }
 
-export default async function HistoryPage() {
+export default async function HistoryPage({
+  params,
+}: {
+  params: { locale: string };
+}) {
+  const { locale } = params;
+  const t = await getTranslations({ locale, namespace: 'HistoryPage' });
   const historyItems = await getHistoryForUser();
 
   return (
     <PrivateRoute>
       <div className={styles.container}>
-        <h1 className={styles.title}>History</h1>
+        <h1 className={styles.title}>{t('title')}</h1>
 
         {historyItems.length === 0 ? (
           <div className={styles.empty}>
-            <p>You haven&apos;t executed any requests yet.</p>
-            <Link href="/client" className={styles.link}>Go to REST Client</Link>
+            <p>{t('emptyMessage')}</p>
+            <Link href="/client" className={styles.link}>
+              {t('linkToClient')}
+            </Link>
           </div>
         ) : (
           <table className={styles.table}>
             <thead>
               <tr>
-                <th>Method</th>
-                <th>URL</th>
-                <th>Status</th>
-                <th>Req Size</th>
-                <th>Resp Size</th>
-                <th>Duration (ms)</th>
-                <th>Timestamp</th>
-                <th>Error</th>
+                <th>{t('tableHeaderMethod')}</th>
+                <th>{t('tableHeaderURL')}</th>
+                <th>{t('tableHeaderStatus')}</th>
+                <th>{t('tableHeaderReqSize')}</th>
+                <th>{t('tableHeaderRespSize')}</th>
+                <th>{t('tableHeaderDuration')}</th>
+                <th>{t('tableHeaderTimestamp')}</th>
+                <th>{t('tableHeaderError')}</th>
               </tr>
             </thead>
             <tbody>
@@ -86,7 +104,16 @@ export default async function HistoryPage() {
 
                 const href = `/client?${params.toString()}`;
 
-                const date = new Date(item.timestamp._seconds * 1000).toLocaleString();
+                const date = new Date(
+                  item.timestamp._seconds * 1000
+                ).toLocaleString();
+
+                const statusClass =
+                  item.response.status >= 200 && item.response.status < 300
+                    ? styles.success
+                    : item.response.status >= 400 && item.response.status < 500
+                      ? styles.clientError
+                      : styles.serverError;
 
                 return (
                   <tr key={item.id}>
@@ -96,17 +123,14 @@ export default async function HistoryPage() {
                         {item.request.url}
                       </Link>
                     </td>
-                    <td
-                      className={`${styles.status} ${item.response.status >= 200 && item.response.status < 300
-                          ? styles.success
-                          : item.response.status >= 400 && item.response.status < 500
-                            ? styles.clientError
-                            : styles.serverError
-                        }`}
-                    >
+                    <td className={`${styles.status} ${statusClass}`}>
                       {item.response.status}
                     </td>
-                    <td>{item.request.body ? new Blob([JSON.stringify(item.request.body)]).size : 0}</td>
+                    <td>
+                      {item.request.body
+                        ? new Blob([JSON.stringify(item.request.body)]).size
+                        : 0}
+                    </td>
                     <td>{item.response.size}</td>
                     <td>{item.duration}</td>
                     <td>{date}</td>

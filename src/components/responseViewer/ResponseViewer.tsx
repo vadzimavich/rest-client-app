@@ -1,6 +1,7 @@
 'use client';
 
 import CodeMirror from '@uiw/react-codemirror';
+import { useTranslations } from 'next-intl';
 import { json } from '@codemirror/lang-json';
 import { vscodeDark } from '@uiw/codemirror-theme-vscode';
 import styles from './ResponseViewer.module.css';
@@ -12,46 +13,51 @@ interface ResponseViewerProps {
 }
 
 export default function ResponseViewer({ data, loading }: ResponseViewerProps) {
+  const t = useTranslations('ResponseViewer');
+
   if (loading) {
-    return <div className={styles.message}>Loading response...</div>;
+    return <div className={styles.message}>{t('loading')}</div>;
   }
 
   if (!data) {
-    return <div className={styles.message}>Send a request to see the response here.</div>;
+    return <div className={styles.message}>{t('placeholder')}</div>;
   }
 
   let formattedBody = data.body;
   try {
     const parsedJson = JSON.parse(data.body);
     formattedBody = JSON.stringify(parsedJson, null, 2);
-  } catch (e) {}
+  } catch (e) {
+    // leave as it is if not valid JSON
+  }
 
   const statusClass =
     data.status >= 200 && data.status < 300
       ? styles.statusSuccess
       : data.status >= 400 && data.status < 500
-      ? styles.statusWarning
-      : data.status >= 500
-      ? styles.statusError
-      : '';
+        ? styles.statusWarning
+        : data.status >= 500
+          ? styles.statusError
+          : '';
 
   return (
     <div className={styles.container}>
-      <h3 className={styles.title}>Response</h3>
+      <h3 className={styles.title}>{t('title')}</h3>
 
       <div className={styles.meta}>
         <span className={`${styles.metaItem} ${statusClass}`}>
-          <strong>Status:</strong> {data.status} {data.statusText}
+          <strong>{t('statusLabel')}:</strong> {data.status}{' '}
+          {data.statusText}{' '}
         </span>
         <span className={styles.metaItem}>
-          <strong>Time:</strong> {data.duration} ms
+          <strong>{t('timeLabel')}:</strong> {data.duration} ms{' '}
         </span>
         <span className={styles.metaItem}>
-          <strong>Size:</strong> {data.size} bytes
+          <strong>{t('sizeLabel')}:</strong> {data.size} bytes{' '}
         </span>
       </div>
 
-      <h4 className={styles.subtitle}>Body:</h4>
+      <h4 className={styles.subtitle}>{t('bodyTitle')}:</h4>
 
       <div className={styles.bodyContainer}>
         <CodeMirror

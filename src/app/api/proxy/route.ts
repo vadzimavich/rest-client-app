@@ -25,7 +25,6 @@ const PROXY_TIMEOUT = 15000;
 
 export async function POST(request: Request) {
   try {
-    // auth check
     const authToken = request.headers.get('Authorization')?.split('Bearer ')[1];
 
     if (!authToken) {
@@ -38,14 +37,12 @@ export async function POST(request: Request) {
     const decodedToken = await admin.auth().verifyIdToken(authToken);
     const userId = decodedToken.uid;
 
-    // get valid response data
     const { url, method, headers, body }: ProxyRequestBody =
       await request.json();
     if (!url) {
       return NextResponse.json({ error: 'URL is required' }, { status: 400 });
     }
 
-    // prepare and send data
     const controller = new AbortController();
     const timeoutId = setTimeout(() => controller.abort(), PROXY_TIMEOUT);
 
@@ -72,7 +69,6 @@ export async function POST(request: Request) {
     const responseBody = await apiResponse.text();
     const responseSize = new Blob([responseBody]).size;
 
-    // form response
     const responseData = {
       status: apiResponse.status,
       statusText: apiResponse.statusText,
@@ -82,7 +78,6 @@ export async function POST(request: Request) {
       size: responseSize,
     };
 
-    // async record to the firestore
     firestore
       .collection('history')
       .add({
@@ -102,10 +97,8 @@ export async function POST(request: Request) {
       })
       .catch(console.error);
 
-    // send succesful response
     return NextResponse.json(responseData, { status: 200 });
   } catch (error: unknown) {
-    // error handling
     let errorMessage = 'An unexpected server error occurred.';
 
     if (isFirebaseError(error)) {

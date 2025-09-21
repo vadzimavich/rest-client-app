@@ -3,6 +3,9 @@ import admin from 'firebase-admin';
 
 export async function POST(request: Request) {
   try {
+    const EXPIRE_TIME = 60 * 60 * 24 * 5 * 1000;
+    const MAX_AGE = 1000;
+
     const { idToken } = await request.json();
     if (!idToken) {
       return NextResponse.json(
@@ -11,7 +14,7 @@ export async function POST(request: Request) {
       );
     }
 
-    const expiresIn = 60 * 60 * 24 * 5 * 1000; // 5 дней
+    const expiresIn = EXPIRE_TIME;
     const sessionCookie = await admin
       .auth()
       .createSessionCookie(idToken, { expiresIn });
@@ -19,7 +22,7 @@ export async function POST(request: Request) {
     const options = {
       name: 'session',
       value: sessionCookie,
-      maxAge: expiresIn / 1000, // maxAge в секундах
+      maxAge: expiresIn / MAX_AGE,
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       path: '/',

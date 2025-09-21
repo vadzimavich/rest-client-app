@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import PrivateRoute from '@/components/PrivateRoute';
 import styles from './VariablesPage.module.css';
+import { useTranslations } from 'next-intl';
 
 interface Variable {
   id: string;
@@ -13,6 +14,7 @@ interface Variable {
 const STORAGE_KEY = 'rest-client-variables';
 
 export default function VariablesPage() {
+  const t = useTranslations('VariablesPage');
   const [variables, setVariables] = useState<Variable[]>([]);
   const [newKey, setNewKey] = useState('');
   const [newValue, setNewValue] = useState('');
@@ -20,7 +22,11 @@ export default function VariablesPage() {
   useEffect(() => {
     const stored = localStorage.getItem(STORAGE_KEY);
     if (stored) {
-      setVariables(JSON.parse(stored));
+      try {
+        setVariables(JSON.parse(stored));
+      } catch (error) {
+        console.error('Failed to parse variables from Local Storage:', error);
+      }
     }
   }, []);
 
@@ -45,25 +51,25 @@ export default function VariablesPage() {
   return (
     <PrivateRoute>
       <div className={styles.container}>
-        <h1 className={styles.title}>Variables</h1>
+        <h1 className={styles.title}>{t('title')}</h1>
 
         <div className={styles.form}>
           <input
             type="text"
-            placeholder="Key"
+            placeholder={t('keyPlaceholder')}
             value={newKey}
             onChange={(e) => setNewKey(e.target.value)}
             className={styles.input}
           />
           <input
             type="text"
-            placeholder="Value"
+            placeholder={t('valuePlaceholder')}
             value={newValue}
             onChange={(e) => setNewValue(e.target.value)}
             className={styles.input}
           />
           <button onClick={handleAddVariable} className={styles.addButton}>
-            Add Variable
+            {t('addButton')}
           </button>
         </div>
 
@@ -77,7 +83,7 @@ export default function VariablesPage() {
                 onClick={() => handleRemoveVariable(variable.id)}
                 className={styles.deleteButton}
               >
-                Delete
+                {t('deleteButton')}
               </button>
             </li>
           ))}

@@ -7,7 +7,6 @@ interface Variable {
 const STORAGE_KEY = 'rest-client-variables';
 
 export const getVariables = (): Variable[] => {
-  // ls browser check
   if (typeof window === 'undefined') {
     return [];
   }

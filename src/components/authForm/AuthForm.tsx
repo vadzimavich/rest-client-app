@@ -7,7 +7,7 @@ import {
   createUserWithEmailAndPassword,
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
-
+import { useTranslations } from 'next-intl';
 import styles from './AuthForm.module.css';
 
 type AuthMode = 'signin' | 'signup';
@@ -21,9 +21,10 @@ export default function AuthForm({ mode }: AuthFormProps) {
   const [password, setPassword] = useState('');
   const [error, setError] = useState<string | null>(null);
   const router = useRouter();
+  const t = useTranslations('AuthForm');
 
-  const title = mode === 'signin' ? 'Sign In' : 'Sign Up';
-  const buttonText = mode === 'signin' ? 'Sign In' : 'Sign Up';
+  const title = mode === 'signin' ? t('signInTitle') : t('signUpTitle');
+  const buttonText = mode === 'signin' ? t('signInButton') : t('signUpButton');
 
   const validatePassword = (password: string): boolean => {
     const passwordRegex =
@@ -33,13 +34,10 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
 
     if (mode === 'signup') {
       if (!validatePassword(password)) {
-        setError(
-          'Password must be at least 8 characters long and contain one letter, one number, and one special character.'
-        );
+        setError(t('passwordValidationError'));
         return;
       }
     }
@@ -60,11 +58,9 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
       router.push('/');
     } catch (err: unknown) {
-      let friendlyMessage = 'An unexpected error occurred.';
+      let friendlyMessage = t('unexpectedError');
       if (err instanceof Error) {
-        friendlyMessage = err.message
-          .replace('Firebase: Error ', '')
-          .replace(/\(auth\/.*\)\.?/, '');
+        friendlyMessage = err.message.replace('Firebase: Error ', '');
       }
       setError(friendlyMessage);
     }
@@ -79,7 +75,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
         type="email"
         value={email}
         onChange={(e) => setEmail(e.target.value)}
-        placeholder="Email"
+        placeholder={t('emailPlaceholder')}
         required
       />
 
@@ -88,7 +84,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
         type="password"
         value={password}
         onChange={(e) => setPassword(e.target.value)}
-        placeholder="Password"
+        placeholder={t('passwordPlaceholder')}
         required
       />
 
@@ -96,7 +92,11 @@ export default function AuthForm({ mode }: AuthFormProps) {
         {buttonText}
       </button>
 
-      {error && <p className={styles.error}>{error}</p>}
+      {error && (
+        <p role="alert" className={styles.error}>
+          {error}
+        </p>
+      )}
     </form>
   );
 }
