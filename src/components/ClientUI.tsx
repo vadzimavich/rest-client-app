@@ -243,6 +243,7 @@ export default function ClientUI() {
           Prettify JSON
         </button>
         <CodeMirror
+          data-testid="request-body-editor"
           value={requestState.body}
           height="200px"
           extensions={[json()]}
