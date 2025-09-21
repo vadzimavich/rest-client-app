@@ -86,6 +86,7 @@ export default function RequestPanel({
         <MethodSelector
           value={requestState.method}
           onChange={method => setRequestState(prev => ({ ...prev, method }))}
+          className={styles.methodSelect}
         />
         <input
           type="text"

@@ -5,6 +5,7 @@ import styles from './MethodSelector.module.css';
 interface MethodSelectorProps {
   value: HttpMethod;
   onChange: (method: HttpMethod) => void;
+  className?: string;
 }
 
 export default function MethodSelector({ value, onChange }: MethodSelectorProps) {
