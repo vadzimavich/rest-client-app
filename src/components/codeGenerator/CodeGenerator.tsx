@@ -72,13 +72,15 @@ export default function CodeGenerator({ requestState }: CodeGeneratorProps) {
           Enter a URL to generate a code snippet.
         </div>
       ) : (
-        <CodeMirror
-          value={snippet}
-          height="200px"
-          extensions={[languages[selectedLang].extension()]}
-          theme={vscodeDark}
-          readOnly={true}
-        />
+        <div className={styles.codeContainer}>
+          <CodeMirror
+            value={snippet}
+            height="200px"
+            extensions={[languages[selectedLang].extension()]}
+            theme={vscodeDark}
+            readOnly={true}
+          />
+        </div>
       )}
     </div>
   );
