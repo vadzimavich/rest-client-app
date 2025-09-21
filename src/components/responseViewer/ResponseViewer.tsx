@@ -26,12 +26,21 @@ export default function ResponseViewer({ data, loading }: ResponseViewerProps) {
     formattedBody = JSON.stringify(parsedJson, null, 2);
   } catch (e) {}
 
+  const statusClass =
+    data.status >= 200 && data.status < 300
+      ? styles.statusSuccess
+      : data.status >= 400 && data.status < 500
+      ? styles.statusWarning
+      : data.status >= 500
+      ? styles.statusError
+      : '';
+
   return (
     <div className={styles.container}>
       <h3 className={styles.title}>Response</h3>
 
       <div className={styles.meta}>
-        <span className={styles.metaItem}>
+        <span className={`${styles.metaItem} ${statusClass}`}>
           <strong>Status:</strong> {data.status} {data.statusText}
         </span>
         <span className={styles.metaItem}>
@@ -44,13 +53,15 @@ export default function ResponseViewer({ data, loading }: ResponseViewerProps) {
 
       <h4 className={styles.subtitle}>Body:</h4>
 
-      <CodeMirror
-        value={formattedBody}
-        height="300px"
-        extensions={[json()]}
-        theme={vscodeDark}
-        readOnly={true}
-      />
+      <div className={styles.bodyContainer}>
+        <CodeMirror
+          value={formattedBody}
+          height="500px"
+          extensions={[json()]}
+          theme={vscodeDark}
+          readOnly={true}
+        />
+      </div>
     </div>
   );
 }
