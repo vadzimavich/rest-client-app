@@ -15,7 +15,7 @@
   },
   "HomePage": {
     "welcomeTitle": "Добро пожаловать!",
-    "welcomeText": "Пожалуйста, <signInLink>Войдите</signInLink> или <signUpLink>зарегистрируйтесь</signUpLink>, чтобы продолжить.",
+    "welcomeText": "Пожалуйста, <signInLink>войдите</signInLink> или <signUpLink>зарегистрируйтесь</signUpLink>, чтобы продолжить.",
     "welcomeBackTitle": "Добро пожаловать, {username}!",
     "restClientButton": "REST Клиент",
     "historyButton": "История",
@@ -82,5 +82,14 @@
     "tableHeaderDuration": "Длительность (мс)",
     "tableHeaderTimestamp": "Время",
     "tableHeaderError": "Ошибка"
+  },
+  "NotFoundPage": {
+    "title": "404 | Страница не найдена",
+    "backHomeLink": "Вернуться на главную"
+  },
+  "ErrorPage": {
+    "title": "Что-то пошло не так!",
+    "tryAgainButton": "Попробовать снова",
+    "toastError": "Произошла непредвиденная ошибка."
   }
 }

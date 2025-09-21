@@ -1,33 +1,21 @@
 .clientContainer {
-  display: flex;
-  flex-direction: column;
-  min-height: 100vh;
-  padding: 1rem;
+  padding: 1.5rem 2rem;
+  max-width: 1400px;
+  margin: 0 auto;
+  width: 100%;
 }
 
 .title {
-  margin-bottom: 1rem;
+  margin-top: 0.5rem;
+  margin-bottom: 2rem;
   text-align: center;
+  font-size: 2.25rem;
 }
 
-.panels {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-  gap: 1rem;
-}
-
-.requestPanel {
-  flex: 0 0 auto;
-  max-width: 100%;
-  padding: 1rem;
-  border-radius: 8px;
-  background: #1b1b1b;
-}
-
-.responsePanel {
-  flex: 0 0 auto;
-  padding: 1rem;
-  border-radius: 8px;
-  background: #1b1b1b;
+.panel {
+  padding: 1.5rem;
+  border-radius: 12px;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  margin-bottom: 2rem;
 }

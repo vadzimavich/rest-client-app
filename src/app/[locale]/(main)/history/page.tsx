@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 import admin from 'firebase-admin';
 import { firestore } from '@/lib/firebase/admin';
 import { HistoryItem } from '@/types/request';
-import PrivateRoute from '@/components/PrivateRoute';
+import PrivateRoute from '@/components/privateRoute/PrivateRoute';
 import styles from './historyPage.module.css';
 import { getTranslations } from 'next-intl/server';
 

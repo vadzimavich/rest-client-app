@@ -36,4 +36,20 @@ describe('PrivateRoute', () => {
     expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
     expect(container).toBeEmptyDOMElement();
   });
+
+  it('should render a loading state when loading is true', () => {
+    vi.mocked(useAuth).mockReturnValue({
+      user: null,
+      loading: true,
+    });
+
+    render(
+      <PrivateRoute>
+        <div>Protected Content</div>
+      </PrivateRoute>
+    );
+
+    expect(screen.getByTestId('spinner')).toBeInTheDocument();
+    expect(screen.queryByText('Protected Content')).not.toBeInTheDocument();
+  });
 });

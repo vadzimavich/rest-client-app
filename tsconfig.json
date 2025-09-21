@@ -21,10 +21,10 @@
     "paths": {
       "@/*": ["./src/*"]
     },
-    "types": ["node", "@testing-library/jest-dom"]
+    "types": ["node", "@testing-library/jest-dom", "vitest/globals"]
   },
-  "typeRoots": ["./node_modules/@types", "./src/types"],
   "include": [
+    "src/vitest-env.d.ts",
     "next-env.d.ts",
     "**/*.ts",
     "**/*.tsx",

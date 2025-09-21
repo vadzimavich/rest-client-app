@@ -85,4 +85,28 @@ describe('CodeGenerator', () => {
 
     expect(languageSelect).toHaveValue('1');
   });
+
+  it('should display an error message if snippet generation fails', async () => {
+    const errorMessage = 'Generation failed';
+    const generateSpy = vi
+      .spyOn(codeGenerator, 'generateCodeSnippet')
+      .mockRejectedValue(new Error(errorMessage));
+
+    const requestStateWithUrl: RequestState = {
+      method: 'GET',
+      url: 'https://api.example.com',
+      headers: [],
+      body: '',
+    };
+    render(<CodeGenerator requestState={requestStateWithUrl} />);
+
+    await waitFor(() => {
+      const codeMirror = screen.getByTestId('codemirror-mock');
+      expect(codeMirror.textContent).toContain(
+        `Error generating snippet: ${errorMessage}`
+      );
+    });
+
+    expect(generateSpy).toHaveBeenCalledTimes(1);
+  });
 });

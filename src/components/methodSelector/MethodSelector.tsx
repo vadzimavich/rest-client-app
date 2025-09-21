@@ -1,5 +1,5 @@
-"use client";
-import { HttpMethod } from "@/types/request";
+'use client';
+import { HttpMethod } from '@/types/request';
 import styles from './MethodSelector.module.css';
 
 interface MethodSelectorProps {
@@ -8,7 +8,10 @@ interface MethodSelectorProps {
   className?: string;
 }
 
-export default function MethodSelector({ value, onChange }: MethodSelectorProps) {
+export default function MethodSelector({
+  value,
+  onChange,
+}: MethodSelectorProps) {
   const methods: HttpMethod[] = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH'];
   return (
     <select
@@ -16,8 +19,10 @@ export default function MethodSelector({ value, onChange }: MethodSelectorProps)
       value={value}
       onChange={(e) => onChange(e.target.value as HttpMethod)}
     >
-      {methods.map(method => (
-        <option key={method} value={method}>{method}</option>
+      {methods.map((method) => (
+        <option key={method} value={method}>
+          {method}
+        </option>
       ))}
     </select>
   );

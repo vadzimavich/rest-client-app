@@ -1,72 +1,44 @@
 .requestRow {
   display: flex;
   align-items: stretch;
-  border: 1px solid #333;
-  border-radius: 6px;
+  border-radius: 8px;
   overflow: hidden;
-  background: #1b1b1b;
-  margin-bottom: 1.5rem;
-  height: 38px;
+  background: var(--input-bg);
+  margin-bottom: 2rem;
+  height: 48px;
+  border: 1px solid var(--input-border);
 }
 
-.methodSelect {
-  padding: 0 0.75rem;
-  border: none;
-  background: #2c2c2c;
-  color: var(--foreground);
-  font-weight: 600;
-  cursor: pointer;
-  font-size: 0.9rem;
-  outline: none;
-}
-
-.methodSelect:hover {
-  background: #3a3a3a;
+.requestRow:focus-within {
+  border-color: var(--input-focus-border);
+  box-shadow: 0 0 0 2px rgba(92, 42, 211, 0.4);
 }
 
 .requestRow input {
   flex: 1;
-  padding: 0 0.75rem;
+  padding: 0 1rem;
   border: none;
   background: transparent;
   color: var(--foreground);
-  font-size: 0.9rem;
+  font-size: 1rem;
+  font-family: var(--font-mono);
   outline: none;
 }
 
-.requestRow button {
-  padding: 0 1rem;
-  border: none;
-  background-color: var(--accent);
-  color: #fff;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background 0.2s ease-in-out;
-}
-
-.requestRow button:hover:not(:disabled) {
-  background-color: #23c2c8;
-}
-
-.requestRow button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
 .sendButton {
-  height: 38px;
-  padding: 0 1rem;
+  padding: 0 1.5rem;
   border: none;
-  border-radius: 6px;
   background-color: var(--accent);
-  color: #fff;
-  font-weight: 600;
+  color: var(--button-color);
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 1.2rem;
   cursor: pointer;
-  transition: background 0.2s ease-in-out;
+  transition: all 0.3s;
 }
 
 .sendButton:hover:not(:disabled) {
-  background-color: #23c2c8;
+  background-color: var(--accent-hover);
 }
 
 .sendButton:disabled {
@@ -74,8 +46,38 @@
   cursor: not-allowed;
 }
 
-.prettifyWrapper {
+.bodyEditorContainer {
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.editorActions {
   display: flex;
   justify-content: flex-end;
-  margin-bottom: 1.5rem;
+  padding: 0;
+  background-color: var(--card-bg);
+  border-bottom: 1px solid var(--input-border);
+}
+
+.prettifyButton {
+  padding: 1rem 1.5rem;
+  outline: 1px var(--input-border) solid;
+  background-color: transparent;
+  color: var(--foreground);
+  opacity: 0.8;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 1rem;
+}
+
+.prettifyButton:hover {
+  opacity: 1;
+  background-color: var(--input-bg);
+}
+
+.codeMirror {
+  font-family: var(--font-mono);
 }

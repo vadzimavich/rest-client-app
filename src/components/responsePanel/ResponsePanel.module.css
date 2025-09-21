@@ -1,19 +1,15 @@
 .responsePanel {
-    display: flex;
-    flex-direction: column;
-    gap: 1rem;
-    margin-top: 1rem;
-    padding: 1rem;
-    border-radius: 8px;
-    background-color: #1b1b1b;
-    color: var(--foreground);
-  }
-  
-  .error {
-    color: #b31e1e;
-    font-weight: 600;
-    padding: 0.5rem;
-    border-radius: 4px;
-    background-color: #1b1b1b;
-  }
-  
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+  padding: 0;
+  background-color: transparent;
+}
+
+.error {
+  color: #d34444;
+  font-weight: 600;
+  padding: 1rem;
+  border-radius: 8px;
+  background-color: #1b1b1b;
+}

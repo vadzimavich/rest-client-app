@@ -1,5 +1,6 @@
 import { describe, it, expect, vi } from 'vitest';
 import { render, screen, fireEvent } from '@/test-utils/test-utils';
+import userEvent from '@testing-library/user-event';
 import HeadersEditor from './HeadersEditor';
 
 describe('HeadersEditor', () => {
@@ -15,21 +16,33 @@ describe('HeadersEditor', () => {
   });
 
   it('should call onChange when adding a new header', async () => {
+    const user = userEvent.setup();
     const handleChange = vi.fn();
     render(<HeadersEditor headers={initialHeaders} onChange={handleChange} />);
 
+    const keyInputs = screen.getAllByPlaceholderText('Key');
+    const valueInputs = screen.getAllByPlaceholderText('Value');
+
+    const newKeyInput = keyInputs[keyInputs.length - 1];
+    const newValueInput = valueInputs[valueInputs.length - 1];
+
     const addButton = screen.getByRole('button', { name: /add header/i });
-    await fireEvent.click(addButton);
+
+    await user.type(newKeyInput, 'Authorization');
+    await user.type(newValueInput, 'Bearer 123');
+    await user.click(addButton);
 
     expect(handleChange).toHaveBeenCalledTimes(1);
-    expect(handleChange.mock.calls[0][0]).toHaveLength(2);
+    const lastCallArgs = handleChange.mock.calls[0][0];
+    expect(lastCallArgs).toHaveLength(2);
+    expect(lastCallArgs[1].key).toBe('Authorization');
   });
 
   it('should call onChange when removing a header', async () => {
     const handleChange = vi.fn();
     render(<HeadersEditor headers={initialHeaders} onChange={handleChange} />);
 
-    const removeButton = screen.getByRole('button', { name: /remove/i });
+    const removeButton = screen.getByLabelText(/remove header/i);
     await fireEvent.click(removeButton);
 
     expect(handleChange).toHaveBeenCalledTimes(1);

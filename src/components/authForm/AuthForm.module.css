@@ -1,57 +1,71 @@
-.form {
+.container {
   display: flex;
-  flex-direction: column;
-  max-width: 400px;
-  margin: 3rem auto;
+  align-items: center;
+  justify-content: center;
+  flex-grow: 1;
   padding: 2rem;
+  height: 80vh;
+}
+
+.form {
+  width: 100%;
+  max-width: 400px;
+  padding: 2.25rem;
   border-radius: 12px;
-  background: #272727;
-  border: none;
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
 }
 
 .title {
-  margin-bottom: 1.5rem;
-  font-size: 1.5rem;
+  margin-bottom: 2rem;
+  font-size: 1.75rem;
   text-align: center;
-  color: #dbdbdb;
+  font-family: var(--font-heading);
+  color: var(--foreground);
 }
 
 .input {
+  width: 100%;
   margin-bottom: 1rem;
   padding: 0.75rem 1rem;
   border-radius: 8px;
   font-size: 1rem;
+  font-family: var(--font-body);
   outline: none;
-  transition: border-color 0.2s ease-in-out;
-  border: 1px solid #444;
-  background: #1e1e1e;
-  color: #fff;
-  box-shadow: none;
+  border: 1px solid var(--input-border);
+  background: var(--input-bg);
+  color: var(--foreground);
+  transition: border-color 0.2s, box-shadow 0.2s;
 }
 
 .input:focus {
-  border-color: var(--accent);
+  border-color: var(--input-focus-border);
+  box-shadow: 0 0 0 2px rgba(0, 122, 204, 0.3);
 }
 
 .button {
-  padding: 0.75rem 1rem;
+  width: 100%;
+  padding: 0.85rem 1rem;
+  margin-top: 1rem;
   border: none;
   border-radius: 8px;
-  background: var(--accent);
-  color: white;
+  background: var(--button-bg);
+  color: var(--button-color);
   font-size: 1rem;
+  font-family: var(--font-heading);
   font-weight: 600;
   cursor: pointer;
-  transition: background 0.2s ease-in-out;
+  transition: background-color 0.2s;
 }
 
 .button:hover {
-  background: #23c2c8;
+  background: var(--accent-hover);
 }
 
 .error {
-  margin-top: 1rem;
-  color: #b92f2f;
+  margin-top: 1.5rem;
+  color: #e53e3e;
   text-align: center;
   font-size: 0.9rem;
 }

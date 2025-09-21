@@ -1,5 +1,3 @@
-'use client';
-
 import styles from './ResponsePanel.module.css';
 import { useTranslations } from 'next-intl';
 import ResponseViewer from '@/components/responseViewer/ResponseViewer';

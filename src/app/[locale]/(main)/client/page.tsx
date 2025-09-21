@@ -1,4 +1,4 @@
-import PrivateRoute from '@/components/PrivateRoute';
+import PrivateRoute from '@/components/privateRoute/PrivateRoute';
 import ClientUI from '@/components/clientUI/ClientUI';
 
 export default function ClientPage() {

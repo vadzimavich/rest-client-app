@@ -1,5 +1,3 @@
-'use client';
-
 import { Dispatch, SetStateAction } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { useTranslations } from 'next-intl';
@@ -100,7 +98,11 @@ export default function RequestPanel({
       });
 
       const data: ResponseData = await response.json();
-      if (!response.ok) throw new Error(data.error || 'Unknown proxy error');
+
+      if (!response.ok || data.error) {
+        throw new Error(data.error || 'Unknown proxy error');
+      }
+
       setResponseData(data);
     } catch (err: unknown) {
       if (err instanceof Error) setError(err.message);
@@ -128,7 +130,11 @@ export default function RequestPanel({
             setRequestState((prev) => ({ ...prev, url: e.target.value }))
           }
         />
-        <button onClick={handleSendRequest} disabled={isLoading}>
+        <button
+          onClick={handleSendRequest}
+          className={styles.sendButton}
+          disabled={isLoading}
+        >
           {isLoading ? t('sendingButton') : t('sendButton')}
         </button>
       </div>
@@ -141,14 +147,15 @@ export default function RequestPanel({
           }
         />
 
-        <div className={styles.bodyEditor}>
-          <div className={styles.prettifyWrapper}>
-            <button onClick={handlePrettify} className={styles.sendButton}>
+        <div className={styles.bodyEditorContainer}>
+          <div className={styles.editorActions}>
+            <button onClick={handlePrettify} className={styles.prettifyButton}>
               {t('prettifyButton')}
             </button>
           </div>
 
           <CodeMirror
+            className={styles.codeMirror}
             value={requestState.body}
             height="200px"
             extensions={[json()]}
@@ -156,6 +163,7 @@ export default function RequestPanel({
             onChange={(value: string) =>
               setRequestState((prev) => ({ ...prev, body: value }))
             }
+            data-testid="request-body-editor"
           />
         </div>
       </Tabs>

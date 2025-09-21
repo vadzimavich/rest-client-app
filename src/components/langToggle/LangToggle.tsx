@@ -4,6 +4,7 @@ import { usePathname, useRouter } from '@/navigation';
 import { useSearchParams } from 'next/navigation';
 import { useLocale } from 'next-intl';
 import { ChangeEvent, useTransition } from 'react';
+import styles from './LangToggle.module.css';
 
 export default function LangToggle() {
   const router = useRouter();
@@ -14,7 +15,6 @@ export default function LangToggle() {
 
   const handleChange = (e: ChangeEvent<HTMLSelectElement>) => {
     const newLocale = e.target.value;
-
     const queryString = searchParams.toString();
     const newPath = queryString ? `${pathname}?${queryString}` : pathname;
 
@@ -24,9 +24,16 @@ export default function LangToggle() {
   };
 
   return (
-    <select value={locale} onChange={handleChange} disabled={isPending}>
-      <option value="en">EN</option>
-      <option value="ru">RU</option>
-    </select>
+    <div className={styles.selectWrapper}>
+      <select
+        className={styles.select}
+        value={locale}
+        onChange={handleChange}
+        disabled={isPending}
+      >
+        <option value="en">EN</option>
+        <option value="ru">RU</option>
+      </select>
+    </div>
   );
 }

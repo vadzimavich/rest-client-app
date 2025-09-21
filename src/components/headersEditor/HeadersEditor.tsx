@@ -1,4 +1,5 @@
 'use client';
+import { useState } from 'react';
 import { RequestHeader } from '@/types/request';
 import { useTranslations } from 'next-intl';
 import styles from './HeadersEditor.module.css';
@@ -13,9 +14,19 @@ export default function HeadersEditor({
   onChange,
 }: HeadersEditorProps) {
   const t = useTranslations('HeadersEditor');
+  const [newKey, setNewKey] = useState('');
+  const [newValue, setNewValue] = useState('');
 
   const handleAddHeader = () => {
-    onChange([...headers, { id: crypto.randomUUID(), key: '', value: '' }]);
+    if (!newKey.trim()) return;
+    const newHeader: RequestHeader = {
+      id: crypto.randomUUID(),
+      key: newKey,
+      value: newValue,
+    };
+    onChange([...headers, newHeader]);
+    setNewKey('');
+    setNewValue('');
   };
 
   const handleHeaderChange = (
@@ -59,21 +70,37 @@ export default function HeadersEditor({
           />
           <button
             type="button"
-            className={styles.removeBtn}
+            className={`${styles.actionBtn} ${styles.removeBtn}`}
             onClick={() => handleRemoveHeader(header.id)}
+            aria-label="Remove header"
           >
-            ✕
+            <span className={styles.icon}></span>
           </button>
         </div>
       ))}
 
-      <div className={styles.addRow}>
+      <div className={styles.row}>
+        <input
+          className={styles.input}
+          type="text"
+          placeholder={t('key')}
+          value={newKey}
+          onChange={(e) => setNewKey(e.target.value)}
+        />
+        <input
+          className={styles.input}
+          type="text"
+          placeholder={t('value')}
+          value={newValue}
+          onChange={(e) => setNewValue(e.target.value)}
+        />
         <button
           type="button"
-          className={styles.addBtn}
+          className={`${styles.actionBtn} ${styles.addBtn}`}
           onClick={handleAddHeader}
+          aria-label="Add header"
         >
-          {t('buttonText')}
+          <span className={styles.icon}></span>
         </button>
       </div>
     </div>

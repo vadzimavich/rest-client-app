@@ -97,19 +97,22 @@ export default function CodeGenerator({ requestState }: CodeGeneratorProps) {
 
   return (
     <div className={styles.generatorContainer}>
-      <h4 className={styles.title}>{t('title')}</h4>
-      <select
-        value={selectedLang}
-        onChange={(e) => setSelectedLang(Number(e.target.value))}
-        className={styles.langSelect}
-      >
-        {languages.map((lang, index) => (
-          <option key={index} value={index}>
-            {lang.name}
-          </option>
-        ))}
-      </select>
-
+      <div className={styles.header}>
+        <h4 className={styles.title}>{t('title')}</h4>
+        <div className={styles.selectWrapper}>
+          <select
+            value={selectedLang}
+            onChange={(e) => setSelectedLang(Number(e.target.value))}
+            className={styles.langSelect}
+          >
+            {languages.map((lang, index) => (
+              <option key={index} value={index}>
+                {lang.name}
+              </option>
+            ))}
+          </select>
+        </div>
+      </div>
       <div className={styles.codeContainer}>
         <CodeMirror
           value={snippet}

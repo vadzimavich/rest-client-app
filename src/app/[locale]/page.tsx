@@ -4,17 +4,22 @@ import { Link } from '@/navigation';
 import { useAuth } from '@/hooks/useAuth';
 import styles from './page.module.css';
 import { useTranslations } from 'next-intl';
+import Spinner from '@/components/spinner/Spinner';
 
 export default function HomePage() {
   const { user, loading } = useAuth();
   const t = useTranslations('HomePage');
 
   if (loading) {
-    return <div className={styles.loading}>Loading...</div>;
+    return (
+      <div className={styles.container}>
+        <Spinner />
+      </div>
+    );
   }
 
   return (
-    <main style={{ padding: '2rem' }}>
+    <main>
       <div className={styles.container}>
         {!user ? (
           <>

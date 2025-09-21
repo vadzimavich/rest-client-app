@@ -11,7 +11,7 @@
 }
 
 .metaItem {
-  font-size: 0.85rem;
+  font-size: 1rem;
   padding: 0.3rem 0.6rem;
   border-radius: 6px;
   background: #222;
@@ -33,11 +33,9 @@
   color: #c7251a;
 }
 
-.title {
-  margin-bottom: 0.5rem;
-}
-
+.title,
 .subtitle {
+  font-size: 1.25rem;
   margin-bottom: 0.5rem;
 }
 
@@ -45,8 +43,8 @@
   border: 1px solid #333;
   border-radius: 6px;
   padding: 0.5rem;
-  background: #1b1b1b;
-  height: 550px;
+  background: transparent;
+  height: 100%;
 }
 
 .message {

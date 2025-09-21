@@ -1,34 +1,42 @@
 .footer {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1rem;
-    border-top: 1px solid var(--accent);
-    background-color: #111111;
-    font-size: 0.9rem;
-  }
-  
-  .links {
-    display: flex;
-    align-items: center;
-  }
-  
-  .link {
-    margin: 0 0.25rem;
-    text-decoration: none;
-    color: var(--accent);
-  }
-  
-  .link:hover {
-    text-decoration: underline;
-  }
-  
-  .year {
-    color: #666;
-  }
-  
-  .logo {
-    display: flex;
-    align-items: center;
-  }
-  
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 1rem 2rem;
+  border-top: 1px solid var(--card-border);
+  background-color: var(--background);
+  font-size: 0.9rem;
+  margin-top: auto;
+}
+
+.authors {
+  display: flex;
+  align-items: center;
+}
+
+.authors:hover {
+  text-decoration: none;
+}
+
+.link {
+  color: var(--accent);
+  margin: 0 0.25rem;
+  font-weight: 600;
+}
+
+.link:hover {
+  color: var(--accent-hover);
+}
+
+.year {
+  font-weight: 600;
+}
+
+.logo {
+  opacity: 0.8;
+  transition: opacity 0.2s;
+}
+
+.logo:hover {
+  opacity: 1;
+}

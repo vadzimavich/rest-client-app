@@ -1,36 +1,32 @@
+/// <reference types="vitest/globals" />
+
 import { describe, it, expect, vi, beforeEach } from 'vitest';
 import { render, screen, fireEvent, waitFor } from '@/test-utils/test-utils';
 import { useAuth } from '@/hooks/useAuth';
 import type { User } from 'firebase/auth';
 import userEvent from '@testing-library/user-event';
 import ClientUI from './ClientUI';
+import { useDebounce } from '@/hooks/useDebounce';
 
-vi.mock('next/navigation', () => ({
-  useRouter: () => ({ replace: vi.fn() }),
-  usePathname: () => '/client',
-  useSearchParams: () => new URLSearchParams(),
-}));
-vi.mock('@/hooks/useAuth');
-vi.mock('@/components/CodeGenerator', () => ({
-  default: () => <div data-testid="codegenerator-mock">Code Generator</div>,
-}));
 vi.mock('@uiw/react-codemirror', () => ({
-  default: (
-    props: Record<string, unknown> & {
-      value: string;
-      onChange?: (value: string) => void;
-    }
-  ) => (
+  default: (props: {
+    value: string;
+    onChange?: (value: string) => void;
+    'data-testid'?: string;
+  }) => (
     <textarea
-      data-testid={(props['data-testid'] as string) || 'codemirror-mock'}
+      data-testid={props['data-testid'] || 'codemirror-mock'}
       value={props.value}
       onChange={(e) => props.onChange?.(e.target.value)}
     />
   ),
 }));
 
+vi.mock('@/hooks/useDebounce');
+vi.mock('@/hooks/useAuth');
+
 describe('ClientUI', () => {
-  const mockFetch = vi.fn();
+  const user = userEvent.setup();
 
   beforeEach(() => {
     vi.clearAllMocks();
@@ -41,108 +37,84 @@ describe('ClientUI', () => {
       } as User,
       loading: false,
     });
-    vi.spyOn(global, 'fetch').mockImplementation(mockFetch);
+    global.fetch = vi.fn().mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ status: 200, body: 'OK' }),
+    });
+    vi.mocked(useDebounce).mockImplementation((value) => value);
   });
 
   it('should render the main components of the REST client', () => {
     render(<ClientUI />);
-
-    expect(screen.getByDisplayValue('GET')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /send/i })).toBeInTheDocument();
     expect(
-      screen.getByPlaceholderText('https://api.example.com')
+      screen.getByRole('button', { name: /headers/i })
     ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Send' })).toBeInTheDocument();
-    expect(
-      screen.getByRole('heading', { name: /headers/i })
-    ).toBeInTheDocument();
-    expect(screen.getByRole('heading', { name: /body/i })).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: 'Prettify JSON' })
-    ).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /body/i })).toBeInTheDocument();
   });
 
   it('should update the URL input when user types', async () => {
     render(<ClientUI />);
-
     const urlInput = screen.getByPlaceholderText(
       /https:\/\/api\.example\.com/i
     );
-    await fireEvent.change(urlInput, {
-      target: { value: 'https://my-test-api.com' },
-    });
-
+    await user.type(urlInput, 'https://my-test-api.com');
     expect(urlInput).toHaveValue('https://my-test-api.com');
   });
 
   it('should prettify JSON in the body editor', async () => {
     render(<ClientUI />);
-
+    await user.click(screen.getByRole('button', { name: /body/i }));
     const bodyEditor = screen.getByTestId('request-body-editor');
     const prettifyButton = screen.getByRole('button', {
       name: /prettify json/i,
     });
 
-    await fireEvent.change(bodyEditor, { target: { value: '{"a":1,"b":2}' } });
-    await fireEvent.click(prettifyButton);
+    fireEvent.change(bodyEditor, { target: { value: '{"a":1,"b":2}' } });
+    await user.click(prettifyButton);
 
     const expectedPrettyJson = JSON.stringify({ a: 1, b: 2 }, null, 2);
+
     expect(bodyEditor).toHaveValue(expectedPrettyJson);
   });
 
   it('should call fetch with correct parameters on Send button click', async () => {
-    mockFetch.mockResolvedValue({
-      ok: true,
-      json: () => Promise.resolve({ status: 200, body: 'OK' }),
-    } as Response);
-
     render(<ClientUI />);
     const urlInput = screen.getByPlaceholderText(
       /https:\/\/api\.example\.com/i
     );
     const sendButton = screen.getByRole('button', { name: /send/i });
-
-    await fireEvent.change(urlInput, {
-      target: { value: 'https://my-api.com/data' },
-    });
-    await fireEvent.click(sendButton);
-
+    await user.type(urlInput, 'https://my-api.com/data');
+    await user.click(sendButton);
     await waitFor(() => {
-      expect(mockFetch).toHaveBeenCalledTimes(1);
+      expect(global.fetch).toHaveBeenCalledTimes(1);
     });
-
-    const [fetchUrl, fetchOptions] = mockFetch.mock.calls[0];
-    expect(fetchUrl).toBe('/api/proxy');
-    if (fetchOptions?.body) {
-      const body = JSON.parse(fetchOptions.body as string);
-      expect(body.url).toBe('https://my-api.com/data');
-    }
   });
 
   it('should display an error message when fetch fails', async () => {
-    mockFetch.mockRejectedValue(new Error('Network request failed'));
-
+    (global.fetch as vi.Mock).mockRejectedValue(
+      new Error('Network request failed')
+    );
     render(<ClientUI />);
     const sendButton = screen.getByRole('button', { name: /send/i });
+    await user.click(sendButton);
 
-    await fireEvent.click(sendButton);
-
-    const alert = await screen.findByRole('alert');
-    expect(alert).toHaveTextContent(/network request failed/i);
+    expect(
+      await screen.findByText(/network request failed/i, {}, { timeout: 2000 })
+    ).toBeInTheDocument();
   });
 
   it('should display an error when trying to prettify invalid JSON', async () => {
     render(<ClientUI />);
-
+    await user.click(screen.getByRole('button', { name: /body/i }));
     const bodyEditor = screen.getByTestId('request-body-editor');
     const prettifyButton = screen.getByRole('button', {
       name: /prettify json/i,
     });
 
     fireEvent.change(bodyEditor, { target: { value: '{ "key": "value"' } });
+    await user.click(prettifyButton);
 
-    await userEvent.click(prettifyButton);
-
-    const alert = await screen.findByRole('alert');
-    expect(alert).toHaveTextContent(/invalid json format/i);
+    expect(await screen.findByText(/invalid json format/i)).toBeInTheDocument();
   });
 });

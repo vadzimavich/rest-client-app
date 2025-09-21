@@ -1,34 +1,29 @@
-.tabsContainer {
-    display: flex;
-    flex-direction: column;
-    gap: 0.5rem;
-  }
-  
-  .tabButtons {
-    display: flex;
-    gap: 1rem;
-  }
-  
-  .tabButton {
-    background: none;
-    border: none;
-    padding: 0.5rem 1rem;
-    border-bottom: 2px solid transparent;
-    cursor: pointer;
-    font-weight: 500;
-    color: var(--foreground);
-    transition: border-color 0.2s ease-in-out, font-weight 0.2s;
-  }
-  
-  .tabButton:hover {
-    color: var(--accent);
-  }
-  
-  .active {
-    border-bottom: 2px solid var(--accent);
-  }
-  
-  .tabContent {
-    margin-top: 1rem;
-  }
-  
+.tabButtons {
+  display: flex;
+  gap: 0.5rem;
+  border-bottom: 1px solid var(--card-border);
+  margin-bottom: 1.5rem;
+}
+
+.tabButton {
+  background: none;
+  border: none;
+  padding: 0.75rem 1rem;
+  border-bottom: 3px solid transparent;
+  cursor: pointer;
+  font-weight: 600;
+  font-size: 1rem;
+  font-family: var(--font-body);
+  color: var(--foreground);
+  opacity: 0.7;
+  transition: border-color 0.2s, opacity 0.2s;
+}
+
+.tabButton:hover {
+  opacity: 1;
+}
+
+.active {
+  border-bottom-color: var(--accent);
+  opacity: 1;
+}

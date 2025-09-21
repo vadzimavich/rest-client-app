@@ -100,7 +100,7 @@ export default function ClientUI() {
       <h1 className={styles.title}>{t('title')}</h1>
 
       <div className={styles.panels}>
-        <div className={styles.requestPanel}>
+        <div className={styles.panel}>
           <RequestPanel
             requestState={requestState}
             setRequestState={setRequestState}
@@ -111,7 +111,7 @@ export default function ClientUI() {
           />
         </div>
 
-        <div className={styles.responsePanel}>
+        <div className={styles.panel}>
           <ResponsePanel
             responseData={responseData}
             loading={isLoading}

@@ -1,9 +1,11 @@
-"use client";
+'use client';
 
-import { useEffect } from "react";
-import { useRouter } from "next/navigation";
-import { useAuth } from "@/hooks/useAuth";
-import AuthForm from "@/components/authForm/AuthForm";
+import { useEffect } from 'react';
+import { useRouter } from 'next/navigation';
+import { useAuth } from '@/hooks/useAuth';
+import AuthForm from '@/components/authForm/AuthForm';
+import Spinner from '../../../../components/spinner/Spinner';
+import styles from '../../../../components/privateRoute/PrivateRoute.module.css';
 
 export default function SignUpPage() {
   const { user, loading } = useAuth();
@@ -11,12 +13,16 @@ export default function SignUpPage() {
 
   useEffect(() => {
     if (!loading && user) {
-      router.push("/");
+      router.push('/');
     }
   }, [user, loading, router]);
 
   if (loading || user) {
-    return <div>Loading...</div>;
+    return (
+      <div className={styles.loadingContainer}>
+        <Spinner />
+      </div>
+    );
   }
 
   return <AuthForm mode="signup" />;

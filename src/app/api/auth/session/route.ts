@@ -32,7 +32,6 @@ export async function POST(request: Request) {
     response.cookies.set(options);
     return response;
   } catch (error) {
-    console.error('Session login error:', error);
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }
 }

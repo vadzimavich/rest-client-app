@@ -1,9 +1,13 @@
 import '../globals.css';
 import { AuthProvider } from '@/components/providers/AuthProvider';
 import Layout from '@/components/mainLayout/MainLayout';
-import { geistSans, geistMono } from '@/lib/fonts';
+import { unbounded, martianMono, mulish } from '@/lib/fonts';
 import { NextIntlClientProvider } from 'next-intl';
 import { getMessages } from 'next-intl/server';
+import ToastProvider from '@/components/toastProvider/ToastProvider';
+import { metadata } from '@/lib/metadata';
+
+export { metadata };
 
 export default async function LocaleLayout({
   children,
@@ -13,7 +17,6 @@ export default async function LocaleLayout({
   params: { locale: string };
 }) {
   const { locale } = params;
-
   const messages = await getMessages();
 
   return (
@@ -22,11 +25,12 @@ export default async function LocaleLayout({
         <link rel="icon" href="/favicon.ico" />
       </head>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} app-layout`}
+        className={`${unbounded.variable} ${martianMono.variable} ${mulish.variable} app-layout`}
       >
         <NextIntlClientProvider locale={locale} messages={messages}>
           <AuthProvider>
             <Layout>{children}</Layout>
+            <ToastProvider />
           </AuthProvider>
         </NextIntlClientProvider>
       </body>

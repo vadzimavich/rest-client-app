@@ -82,5 +82,14 @@
     "tableHeaderDuration": "Duration (ms)",
     "tableHeaderTimestamp": "Timestamp",
     "tableHeaderError": "Error"
+  },
+  "NotFoundPage": {
+    "title": "404 | Page Not Found",
+    "backHomeLink": "Back to Home"
+  },
+  "ErrorPage": {
+    "title": "Something went wrong!",
+    "tryAgainButton": "Try Again",
+    "toastError": "An unexpected error occurred."
   }
 }
