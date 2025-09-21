@@ -1,0 +1,35 @@
+.container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    min-height: 80vh;
+    text-align: center;
+    padding: 2rem;
+  }
+  
+  .title {
+    font-size: 2rem;
+    margin-bottom: 2rem;
+    color: var(--accent);
+  }
+  
+  .text {
+    font-size: 1.2rem;
+    margin-bottom: 2rem;
+    color: var(--foreground);
+  }
+  
+  .link {
+    padding: 0.5rem 1rem;
+    background-color: var(--accent);
+    color: #fff;
+    border-radius: 6px;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  
+  .link:hover {
+    background-color: #23c2c8;
+  }
+  
