@@ -8,7 +8,7 @@ import {
 } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 
-import styles from "./AuthForm.module.css";
+import styles from './AuthForm.module.css';
 
 type AuthMode = 'signin' | 'signup';
 
@@ -45,11 +45,19 @@ export default function AuthForm({ mode }: AuthFormProps) {
     }
 
     try {
-      if (mode === 'signin') {
-        await signInWithEmailAndPassword(auth, email, password);
-      } else {
-        await createUserWithEmailAndPassword(auth, email, password);
-      }
+      const userCredential =
+        mode === 'signin'
+          ? await signInWithEmailAndPassword(auth, email, password)
+          : await createUserWithEmailAndPassword(auth, email, password);
+
+      const idToken = await userCredential.user.getIdToken();
+
+      await fetch('/api/auth/session', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ idToken }),
+      });
+
       router.push('/');
     } catch (err: unknown) {
       let friendlyMessage = 'An unexpected error occurred.';

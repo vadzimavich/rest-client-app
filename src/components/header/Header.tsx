@@ -1,24 +1,26 @@
-"use client";
+'use client';
 
-import Link from "next/link";
-import { useRouter } from "next/navigation";
-import { signOut } from "firebase/auth";
-import { auth } from "@/lib/firebase/config";
-import { useAuth } from "@/hooks/useAuth";
-import styles from "./Header.module.css";
-import { useState } from "react";
+import Link from 'next/link';
+import { useRouter } from 'next/navigation';
+import { signOut } from 'firebase/auth';
+import { auth } from '@/lib/firebase/config';
+import { useAuth } from '@/hooks/useAuth';
+import styles from './Header.module.css';
+import { useState } from 'react';
 
 export default function Header() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [lang, setLang] = useState<"en" | "ru">("en");
+  const [lang, setLang] = useState<'en' | 'ru'>('en');
 
   const handleSignOut = async () => {
     try {
       await signOut(auth);
-      router.push("/");
+      await fetch('/api/auth/session', { method: 'DELETE' });
+
+      router.push('/');
     } catch (error) {
-      console.error("Error signing out: ", error);
+      console.error('Error signing out: ', error);
     }
   };
 
@@ -31,7 +33,7 @@ export default function Header() {
       <nav className={styles.nav}>
         <select
           value={lang}
-          onChange={(e) => setLang(e.target.value as "en" | "ru")}
+          onChange={(e) => setLang(e.target.value as 'en' | 'ru')}
           className={styles.langToggle}
         >
           <option value="en">EN</option>
