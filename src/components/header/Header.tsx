@@ -6,12 +6,13 @@ import { signOut } from "firebase/auth";
 import { auth } from "@/lib/firebase/config";
 import { useAuth } from "@/hooks/useAuth";
 import styles from "./Header.module.css";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 
 export default function Header() {
   const { user, loading } = useAuth();
   const router = useRouter();
   const [lang, setLang] = useState<"en" | "ru">("en");
+  const [scrolled, setScrolled] = useState(false);
 
   const handleSignOut = async () => {
     try {
@@ -22,8 +23,19 @@ export default function Header() {
     }
   };
 
+  useEffect(() => {
+    const handleScroll = () => {
+      setScrolled(window.scrollY > 5); 
+    };
+
+    window.addEventListener("scroll", handleScroll);
+    return () => {
+      window.removeEventListener("scroll", handleScroll);
+    };
+  }, []);
+
   return (
-    <header className={styles.header}>
+    <header className={`${styles.header} ${scrolled ? styles.scrolled : ""}`}>
       <Link href="/" className={styles.link}>
         REST Client App
       </Link>
