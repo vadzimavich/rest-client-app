@@ -1,0 +1,78 @@
+.container {
+    margin-top: 1rem;
+  }
+  
+  .title {
+    font-size: 1rem;
+    font-weight: 600;
+    margin-bottom: 0.75rem;
+  }
+  
+  .row {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-bottom: 0.5rem;
+  }
+  
+  .input {
+    flex: 1;
+    height: 38px; 
+    padding: 0 0.75rem;
+    border-radius: 6px;
+    border: 1px solid #333;
+    background: #1b1b1b;
+    color: var(--foreground);
+    font-size: 0.9rem;
+  }
+  
+  .input:focus {
+    border-color: var(--accent);
+    outline: none;
+  }
+  
+  .removeBtn {
+    height: 38px;
+    padding: 0 0.75rem;
+    border: none;
+    border-radius: 6px;
+    background: #b31e1e;
+    color: white;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .removeBtn:hover {
+    background: #c0392b;
+  }
+  
+  .addRow {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 0.5rem;
+  }
+  
+  .addBtn {
+    height: 38px;
+    padding: 0 1rem;
+    border: none;
+    border-radius: 6px;
+    background: var(--accent);
+    color: white;
+    font-size: 0.85rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.2s ease-in-out;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  
+  .addBtn:hover {
+    background: #23c2c8;
+  }
+  
