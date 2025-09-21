@@ -255,7 +255,11 @@ export default function ClientUI() {
       </div>
       <CodeGenerator requestState={requestState} />
       <hr style={{ margin: '2rem 0' }} />
-      {error && <div style={{ color: 'red' }}>Error: {error}</div>}
+      {error && (
+        <div role="alert" style={{ color: 'red' }}>
+          Error: {error}
+        </div>
+      )}
       <ResponseViewer data={responseData} loading={isLoading} />
     </>
   );

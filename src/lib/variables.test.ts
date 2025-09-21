@@ -1,5 +1,27 @@
 import { describe, it, expect } from 'vitest';
-import { substituteVariables } from './variables';
+import { getVariables, substituteVariables } from './variables';
+
+const localStorageMock = (() => {
+  let store: Record<string, string> = {};
+  return {
+    getItem: (key: string) => store[key] || null,
+    setItem: (key: string, value: string) => {
+      store[key] = value;
+    },
+    clear: () => {
+      store = {};
+    },
+  };
+})();
+Object.defineProperty(window, 'localStorage', { value: localStorageMock });
+
+describe('getVariables', () => {
+  it('should return an empty array if localStorage contains invalid JSON', () => {
+    localStorage.setItem('rest-client-variables', 'this is not json');
+    const vars = getVariables();
+    expect(vars).toEqual([]);
+  });
+});
 
 describe('substituteVariables', () => {
   const variables = [

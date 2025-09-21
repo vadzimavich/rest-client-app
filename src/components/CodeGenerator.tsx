@@ -1,4 +1,4 @@
-"use client";
+'use client';
 
 import { useState, useEffect } from 'react';
 import { RequestState } from '@/types/request';
@@ -22,18 +22,53 @@ interface LanguageOption {
   lang: string;
   variant: string;
   name: string;
-  extension: () => Extension;
+  extension: Extension | (() => Extension);
 }
 
 const languages: LanguageOption[] = [
-  { lang: 'curl', variant: 'curl', name: 'cURL', extension: () => StreamLanguage.define(shell) },
-  { lang: 'javascript', variant: 'fetch', name: 'JavaScript (Fetch)', extension: () => javascript() },
-  { lang: 'javascript', variant: 'xhr', name: 'JavaScript (XHR)', extension: () => javascript() },
-  { lang: 'nodejs', variant: 'Native', name: 'Node.js (Native)', extension: () => javascript() },
-  { lang: 'python', variant: 'requests', name: 'Python (Requests)', extension: () => python() },
-  { lang: 'java', variant: 'okhttp', name: 'Java (OkHttp)', extension: () => java() },
-  { lang: 'csharp', variant: 'restsharp', name: 'C# (RestSharp)', extension: () => StreamLanguage.define(csharp) },
-  { lang: 'go', variant: 'native', name: 'Go (Native)', extension: () => StreamLanguage.define(go) },
+  {
+    lang: 'curl',
+    variant: 'curl',
+    name: 'cURL',
+    extension: StreamLanguage.define(shell),
+  },
+  {
+    lang: 'javascript',
+    variant: 'fetch',
+    name: 'JavaScript (Fetch)',
+    extension: javascript,
+  },
+  {
+    lang: 'javascript',
+    variant: 'xhr',
+    name: 'JavaScript (XHR)',
+    extension: javascript,
+  },
+  {
+    lang: 'nodejs',
+    variant: 'Native',
+    name: 'Node.js (Native)',
+    extension: javascript,
+  },
+  {
+    lang: 'python',
+    variant: 'requests',
+    name: 'Python (Requests)',
+    extension: python,
+  },
+  { lang: 'java', variant: 'okhttp', name: 'Java (OkHttp)', extension: java },
+  {
+    lang: 'csharp',
+    variant: 'restsharp',
+    name: 'C# (RestSharp)',
+    extension: StreamLanguage.define(csharp),
+  },
+  {
+    lang: 'go',
+    variant: 'native',
+    name: 'Go (Native)',
+    extension: StreamLanguage.define(go),
+  },
 ];
 
 export default function CodeGenerator({ requestState }: CodeGeneratorProps) {
@@ -49,7 +84,7 @@ export default function CodeGenerator({ requestState }: CodeGeneratorProps) {
     const { lang, variant } = languages[selectedLang];
     generateCodeSnippet(requestState, lang, variant)
       .then(setSnippet)
-      .catch(err => setSnippet(`Error generating snippet: ${err.message}`));
+      .catch((err) => setSnippet(`Error generating snippet: ${err.message}`));
   }, [requestState, selectedLang]);
 
   return (
@@ -61,13 +96,15 @@ export default function CodeGenerator({ requestState }: CodeGeneratorProps) {
         style={{ marginBottom: '0.5rem' }}
       >
         {languages.map((lang, index) => (
-          <option key={index} value={index}>{lang.name}</option>
+          <option key={index} value={index}>
+            {lang.name}
+          </option>
         ))}
       </select>
       <CodeMirror
         value={snippet}
         height="200px"
-        extensions={[languages[selectedLang].extension()]}
+        extensions={[languages[selectedLang].extension]}
         theme={vscodeDark}
         readOnly={true}
       />

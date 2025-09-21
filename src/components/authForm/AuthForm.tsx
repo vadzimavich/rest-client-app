@@ -33,7 +33,6 @@ export default function AuthForm({ mode }: AuthFormProps) {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setError(null);
 
     if (mode === 'signup') {
       if (!validatePassword(password)) {
@@ -62,9 +61,7 @@ export default function AuthForm({ mode }: AuthFormProps) {
     } catch (err: unknown) {
       let friendlyMessage = 'An unexpected error occurred.';
       if (err instanceof Error) {
-        friendlyMessage = err.message
-          .replace('Firebase: Error ', '')
-          .replace(/\(auth\/.*\)\.?/, '');
+        friendlyMessage = err.message.replace('Firebase: Error ', '');
       }
       setError(friendlyMessage);
     }
@@ -96,7 +93,11 @@ export default function AuthForm({ mode }: AuthFormProps) {
         {buttonText}
       </button>
 
-      {error && <p className={styles.error}>{error}</p>}
+      {error && (
+        <p role="alert" className={styles.error}>
+          {error}
+        </p>
+      )}
     </form>
   );
 }
