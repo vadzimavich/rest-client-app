@@ -42,7 +42,7 @@ export default function Header() {
           <div>Loading...</div>
         ) : user ? (
           <>
-            <span>Welcome, {user.email}</span>
+            <span>Welcome, {user.email?.split('@')[0]}</span>
             <button onClick={handleSignOut} className={styles.button}>
               Sign Out
             </button>
