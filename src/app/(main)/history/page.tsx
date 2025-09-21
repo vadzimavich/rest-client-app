@@ -4,6 +4,7 @@ import admin from 'firebase-admin';
 import { firestore } from '@/lib/firebase/admin';
 import { HistoryItem } from '@/types/request';
 import PrivateRoute from '@/components/PrivateRoute';
+import styles from './historyPage.module.css';
 
 const safeEncode = (str: unknown): string => {
   if (!str) return '';
@@ -17,37 +18,26 @@ const safeEncode = (str: unknown): string => {
 
 async function getHistoryForUser(): Promise<HistoryItem[]> {
   try {
-    // get token
     const cookieStore = await cookies();
     const sessionCookie = cookieStore.get('session')?.value;
-    if (!sessionCookie) {
-      return [];
-    }
+    if (!sessionCookie) return [];
 
-    // verify
     const decodedToken = await admin.auth().verifySessionCookie(sessionCookie);
     const userId = decodedToken.uid;
 
-    // firestore
     const historySnapshot = await firestore
       .collection('history')
       .where('userId', '==', userId)
       .orderBy('timestamp', 'desc')
-      .limit(50) // last 50 requests
+      .limit(50)
       .get();
 
-    if (historySnapshot.empty) {
-      return [];
-    }
+    if (historySnapshot.empty) return [];
 
-    // convert data
-    const history: HistoryItem[] = historySnapshot.docs.map((doc) => {
-      const data = doc.data();
-      return {
-        id: doc.id,
-        ...data,
-      } as HistoryItem;
-    });
+    const history: HistoryItem[] = historySnapshot.docs.map((doc) => ({
+      id: doc.id,
+      ...doc.data(),
+    } as HistoryItem));
 
     return history;
   } catch (error) {
@@ -61,39 +51,39 @@ export default async function HistoryPage() {
 
   return (
     <PrivateRoute>
-      <h1>History</h1>
-      {historyItems.length === 0 ? (
-        <div>
-          <p>You haven&apos;t executed any requests yet.</p>
-          <Link href="/client">Go to REST Client</Link>
-        </div>
-      ) : (
-        <ul style={{ listStyle: 'none', marginTop: '1rem' }}>
-          {historyItems.map((item) => {
-            const params = new URLSearchParams();
-            params.set('method', item.request.method);
-            params.set('url', safeEncode(item.request.url));
-            params.set('body', safeEncode(item.request.body));
+      <div className={styles.container}>
+        <h1 className={styles.title}>History</h1>
+        {historyItems.length === 0 ? (
+          <div>
+            <p>You haven&apos;t executed any requests yet.</p>
+            <Link href="/client" className={styles.link}>Go to REST Client</Link>
+          </div>
+        ) : (
+          <ul className={styles.historyList}>
+            {historyItems.map((item) => {
+              const params = new URLSearchParams();
+              params.set('method', item.request.method);
+              params.set('url', safeEncode(item.request.url));
+              params.set('body', safeEncode(item.request.body));
 
-            Object.entries(item.request.headers).forEach(([key, value]) => {
-              params.set(key, value);
-            });
+              Object.entries(item.request.headers).forEach(([key, value]) => {
+                params.set(key, value);
+              });
 
-            const href = `/client?${params.toString()}`;
+              const href = `/client?${params.toString()}`;
 
-            return (
-              <li key={item.id} style={{ marginBottom: '0.5rem' }}>
-                <Link href={href}>
-                  <span style={{ fontWeight: 'bold', marginRight: '1rem' }}>
-                    {item.request.method}
-                  </span>
-                  <span>{item.request.url}</span>
-                </Link>
-              </li>
-            );
-          })}
-        </ul>
-      )}
+              return (
+                <li key={item.id} className={styles.historyItem}>
+                  <Link href={href} className={styles.link}>
+                    <span className={styles.method}>{item.request.method}</span>
+                    <span>{item.request.url}</span>
+                  </Link>
+                </li>
+              );
+            })}
+          </ul>
+        )}
+      </div>
     </PrivateRoute>
   );
 }
