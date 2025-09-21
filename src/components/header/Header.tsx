@@ -6,12 +6,13 @@ import { signOut } from 'firebase/auth';
 import { auth } from '@/lib/firebase/config';
 import { useAuth } from '@/hooks/useAuth';
 import styles from './Header.module.css';
-import { useState } from 'react';
+import LangToggle from '@/components/LangToggle';
+import { useTranslations } from 'next-intl';
 
 export default function Header() {
   const { user, loading } = useAuth();
   const router = useRouter();
-  const [lang, setLang] = useState<'en' | 'ru'>('en');
+  const t = useTranslations('Header');
 
   const handleSignOut = async () => {
     try {
@@ -27,35 +28,28 @@ export default function Header() {
   return (
     <header className={styles.header}>
       <Link href="/" className={styles.link}>
-        REST Client App
+        {t('appTitle')}
       </Link>
 
       <nav className={styles.nav}>
-        <select
-          value={lang}
-          onChange={(e) => setLang(e.target.value as 'en' | 'ru')}
-          className={styles.langToggle}
-        >
-          <option value="en">EN</option>
-          <option value="ru">RU</option>
-        </select>
+        <LangToggle />
 
         {loading ? (
-          <div>Loading...</div>
+          <div>{t('loading')}</div>
         ) : user ? (
           <>
-            <span>Welcome, {user.email}</span>
+            <span>{t('welcome', { email: user.email || 'User' })}</span>
             <button onClick={handleSignOut} className={styles.button}>
-              Sign Out
+              {t('signOut')}
             </button>
           </>
         ) : (
           <>
             <Link href="/signin" className={styles.link}>
-              Sign In
+              {t('signIn')}
             </Link>
             <Link href="/signup" className={styles.link}>
-              Sign Up
+              {t('signUp')}
             </Link>
           </>
         )}

@@ -4,6 +4,7 @@ import admin from 'firebase-admin';
 import { firestore } from '@/lib/firebase/admin';
 import { HistoryItem } from '@/types/request';
 import PrivateRoute from '@/components/PrivateRoute';
+import { getTranslations } from 'next-intl/server';
 
 const safeEncode = (str: unknown): string => {
   if (!str) return '';
@@ -56,16 +57,21 @@ async function getHistoryForUser(): Promise<HistoryItem[]> {
   }
 }
 
-export default async function HistoryPage() {
+export default async function HistoryPage({
+  params: { locale },
+}: {
+  params: { locale: string };
+}) {
+  const t = await getTranslations({ locale, namespace: 'HistoryPage' });
   const historyItems = await getHistoryForUser();
 
   return (
     <PrivateRoute>
-      <h1>History</h1>
+      <h1>{t('title')}</h1>
       {historyItems.length === 0 ? (
         <div>
-          <p>You haven&apos;t executed any requests yet.</p>
-          <Link href="/client">Go to REST Client</Link>
+          <p>{t('emptyMessage')}</p>
+          <Link href="/client">{t('linkToClient')}</Link>
         </div>
       ) : (
         <ul style={{ listStyle: 'none', marginTop: '1rem' }}>

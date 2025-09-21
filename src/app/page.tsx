@@ -3,9 +3,11 @@
 import Link from 'next/link';
 import { useAuth } from '@/hooks/useAuth';
 import styles from './page.module.css';
+import { useTranslations } from 'next-intl';
 
 export default function HomePage() {
   const { user, loading } = useAuth();
+  const t = useTranslations('HomePage');
 
   if (loading) {
     return <div className={styles.loading}>Loading...</div>;
@@ -18,30 +20,35 @@ export default function HomePage() {
       <div className={styles.container}>
         {!user ? (
           <>
-            <h1 className={styles.title}>Welcome!</h1>
+            <h1 className={styles.title}>{t('welcomeTitle')}</h1>
             <p className={styles.text}>
-              Please{' '}
-              <Link href="/signin" className={styles.link}>
-                Sign In
-              </Link>{' '}
-              or{' '}
-              <Link href="/signup" className={styles.link}>
-                Sign Up
-              </Link>{' '}
-              to continue.
+              {t.rich('welcomeText', {
+                signInLink: (chunks) => (
+                  <Link href="/signin" className={styles.link}>
+                    {chunks}
+                  </Link>
+                ),
+                signUpLink: (chunks) => (
+                  <Link href="/signup" className={styles.link}>
+                    {chunks}
+                  </Link>
+                ),
+              })}
             </p>
           </>
         ) : (
           <>
             <h1 className={styles.title}>
-              Welcome back, {user.email?.split('@')[0]}!
+              {t('welcomeBackTitle', {
+                username: user.email?.split('@')[0] || 'User',
+              })}
             </h1>
             <nav className={styles.nav}>
               <Link href={clientHref} className={styles.button}>
-                REST Client
+                {t('restClientButton')}
               </Link>
               <Link href="/history" className={styles.button}>
-                History
+                {t('historyButton')}
               </Link>
             </nav>
           </>

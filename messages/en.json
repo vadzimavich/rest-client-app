@@ -1,0 +1,65 @@
+{
+  "Header": {
+    "appTitle": "REST Client App",
+    "signIn": "Sign In",
+    "signUp": "Sign Up",
+    "signOut": "Sign Out",
+    "welcome": "Welcome, {email}",
+    "loading": "Loading..."
+  },
+  "HomePage": {
+    "welcomeTitle": "Welcome!",
+    "welcomeText": "Please <signInLink>Sign In</signInLink> or <signUpLink>Sign Up</signUpLink> to continue.",
+    "welcomeBackTitle": "Welcome, {username}!",
+    "restClientButton": "REST Client",
+    "historyButton": "History"
+  },
+  "AuthForm": {
+    "signInTitle": "Sign In",
+    "signUpTitle": "Sign Up",
+    "signInButton": "Sign In",
+    "signUpButton": "Sign Up",
+    "emailPlaceholder": "Email",
+    "passwordPlaceholder": "Password",
+    "passwordValidationError": "Password must be at least 8 characters long and contain one letter, one number, and one special character.",
+    "unexpectedError": "An unexpected error occurred."
+  },
+  "ClientUI": {
+    "title": "REST Client",
+    "urlPlaceholder": "https://api.example.com",
+    "sendButton": "Send",
+    "sendingButton": "Sending...",
+    "headersTitle": "Headers",
+    "bodyTitle": "Body",
+    "prettifyButton": "Prettify JSON",
+    "prettifyError": "Invalid JSON format. Cannot prettify.",
+    "authError": "You must be logged in to send requests.",
+    "unexpectedError": "An unexpected error occurred."
+  },
+  "ResponseViewer": {
+    "title": "Response",
+    "statusLabel": "Status",
+    "timeLabel": "Time",
+    "sizeLabel": "Size",
+    "bodyTitle": "Body",
+    "loading": "Loading response...",
+    "placeholder": "Send a request to see the response here."
+  },
+  "CodeGenerator": {
+    "title": "Generated Code",
+    "placeholder": "Enter a URL to generate a code snippet.",
+    "error": "Error generating snippet: {errorMessage}"
+  },
+  "VariablesPage": {
+    "title": "Variables",
+    "keyPlaceholder": "Key",
+    "valuePlaceholder": "Value",
+    "addButton": "Add Variable",
+    "deleteButton": "Delete"
+  },
+  "HistoryPage": {
+    "title": "History",
+    "emptyMessage": "You haven't executed any requests yet.",
+    "linkToClient": "Go to REST Client"
+  }
+}

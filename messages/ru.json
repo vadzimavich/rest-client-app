@@ -1,0 +1,65 @@
+{
+  "Header": {
+    "appTitle": "REST Клиент",
+    "signIn": "Войти",
+    "signUp": "Регистрация",
+    "signOut": "Выйти",
+    "welcome": "Привет, {email}",
+    "loading": "Загрузка..."
+  },
+  "HomePage": {
+    "welcomeTitle": "Добро пожаловать!",
+    "welcomeText": "Пожалуйста, <signInLink>Войдите</signInLink> или <signUpLink>зарегистрируйтесь</signUpLink>, чтобы продолжить.",
+    "welcomeBackTitle": "С возвращением, {username}!",
+    "restClientButton": "REST Клиент",
+    "historyButton": "История"
+  },
+  "AuthForm": {
+    "signInTitle": "Вход",
+    "signUpTitle": "Регистрация",
+    "signInButton": "Войти",
+    "signUpButton": "Зарегистрироваться",
+    "emailPlaceholder": "Электронная почта",
+    "passwordPlaceholder": "Пароль",
+    "passwordValidationError": "Пароль должен быть не менее 8 символов и содержать одну букву, одну цифру и один специальный символ.",
+    "unexpectedError": "Произошла непредвиденная ошибка."
+  },
+  "ClientUI": {
+    "title": "REST Клиент",
+    "urlPlaceholder": "https://api.example.com",
+    "sendButton": "Отправить",
+    "sendingButton": "Отправка...",
+    "headersTitle": "Заголовки",
+    "bodyTitle": "Тело запроса",
+    "prettifyButton": "Отформатировать JSON",
+    "prettifyError": "Неверный формат JSON. Невозможно отформатировать.",
+    "authError": "Вы должны быть авторизованы для отправки запросов.",
+    "unexpectedError": "Произошла непредвиденная ошибка."
+  },
+  "ResponseViewer": {
+    "title": "Ответ",
+    "statusLabel": "Статус",
+    "timeLabel": "Время",
+    "sizeLabel": "Размер",
+    "bodyTitle": "Тело ответа",
+    "loading": "Загрузка ответа...",
+    "placeholder": "Отправьте запрос, чтобы увидеть ответ здесь."
+  },
+  "CodeGenerator": {
+    "title": "Сгенерированный код",
+    "placeholder": "Введите URL для генерации фрагмента кода.",
+    "error": "Ошибка генерации фрагмента: {errorMessage}"
+  },
+  "VariablesPage": {
+    "title": "Переменные",
+    "keyPlaceholder": "Ключ",
+    "valuePlaceholder": "Значение",
+    "addButton": "Добавить переменную",
+    "deleteButton": "Удалить"
+  },
+  "HistoryPage": {
+    "title": "История",
+    "emptyMessage": "Вы еще не выполняли никаких запросов.",
+    "linkToClient": "Перейти в REST Клиент"
+  }
+}

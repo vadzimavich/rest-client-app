@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useRef, ChangeEvent } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useDebounce } from '@/hooks/useDebounce';
 import { useAuth } from '@/hooks/useAuth';
 import { useRouter, usePathname, useSearchParams } from 'next/navigation';
@@ -13,6 +13,7 @@ import { vscodeDark } from '@uiw/codemirror-theme-vscode';
 import ResponseViewer from '@/components/ResponseViewer';
 import CodeGenerator from '@/components/CodeGenerator';
 import { getVariables, substituteVariables } from '@/lib/variables';
+import { useTranslations } from 'next-intl';
 
 interface ResponseData {
   status: number;
@@ -62,6 +63,7 @@ const parseStateFromParams = (params: URLSearchParams): RequestState => {
 
 // component is authonomous now & doesn't receive props
 export default function ClientUI() {
+  const t = useTranslations('ClientUI');
   const { user } = useAuth();
   const router = useRouter();
   const pathname = usePathname();
@@ -126,7 +128,7 @@ export default function ClientUI() {
       setRequestState((prev) => ({ ...prev, body: prettyBody }));
       setError(null);
     } catch (err) {
-      setError('Invalid JSON format. Cannot prettify.');
+      setError(t('prettifyError'));
     }
   };
 
@@ -137,7 +139,7 @@ export default function ClientUI() {
 
     // auth check
     if (!user) {
-      setError('You must be logged in to send requests.');
+      setError(t('authError'));
       setIsLoading(false);
       return;
     }
@@ -201,7 +203,7 @@ export default function ClientUI() {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError('An unexpected error occurred.');
+        setError(t('unexpectedError'));
       }
     } finally {
       setIsLoading(false);
@@ -210,37 +212,37 @@ export default function ClientUI() {
 
   return (
     <>
-      <h1>REST Client</h1>
+      <h1>{t('title')}</h1>
       <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1rem' }}>
         <MethodSelector
           value={requestState.method}
-          onChange={(method: HttpMethod) =>
+          onChange={(method) =>
             setRequestState((prev) => ({ ...prev, method }))
           }
         />
         <input
           type="text"
-          placeholder="https://api.example.com"
+          placeholder={t('urlPlaceholder')}
           style={{ flex: 1 }}
           value={requestState.url}
-          onChange={(e: ChangeEvent<HTMLInputElement>) =>
+          onChange={(e) =>
             setRequestState((prev) => ({ ...prev, url: e.target.value }))
           }
         />
         <button onClick={handleSendRequest} disabled={isLoading}>
-          {isLoading ? 'Sending...' : 'Send'}
+          {isLoading ? t('sendingButton') : t('sendButton')}
         </button>
       </div>
       <HeadersEditor
         headers={requestState.headers}
-        onChange={(headers: RequestHeader[]) =>
+        onChange={(headers) =>
           setRequestState((prev) => ({ ...prev, headers }))
         }
       />
       <div style={{ marginTop: '1rem' }}>
-        <h4>Body</h4>
+        <h4>{t('bodyTitle')}</h4>
         <button onClick={handlePrettify} style={{ marginBottom: '0.5rem' }}>
-          Prettify JSON
+          {t('prettifyButton')}
         </button>
         <CodeMirror
           data-testid="request-body-editor"

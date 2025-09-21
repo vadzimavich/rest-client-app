@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, beforeEach } from 'vitest';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+import { render, screen, fireEvent, waitFor } from '@/test-utils/test-utils';
 import { useAuth } from '@/hooks/useAuth';
 import type { User } from 'firebase/auth';
 import userEvent from '@testing-library/user-event';
@@ -49,15 +49,15 @@ describe('ClientUI', () => {
 
     expect(screen.getByDisplayValue('GET')).toBeInTheDocument();
     expect(
-      screen.getByPlaceholderText(/https:\/\/api\.example\.com/i)
+      screen.getByPlaceholderText('https://api.example.com')
     ).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: /send/i })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'Send' })).toBeInTheDocument();
     expect(
       screen.getByRole('heading', { name: /headers/i })
     ).toBeInTheDocument();
     expect(screen.getByRole('heading', { name: /body/i })).toBeInTheDocument();
     expect(
-      screen.getByRole('button', { name: /prettify json/i })
+      screen.getByRole('button', { name: 'Prettify JSON' })
     ).toBeInTheDocument();
   });
 

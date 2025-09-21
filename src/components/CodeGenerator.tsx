@@ -13,6 +13,7 @@ import { shell } from '@codemirror/legacy-modes/mode/shell';
 import { csharp } from '@codemirror/legacy-modes/mode/clike';
 import { go } from '@codemirror/legacy-modes/mode/go';
 import { Extension } from '@codemirror/state';
+import { useTranslations } from 'next-intl';
 
 interface CodeGeneratorProps {
   requestState: RequestState;
@@ -72,24 +73,25 @@ const languages: LanguageOption[] = [
 ];
 
 export default function CodeGenerator({ requestState }: CodeGeneratorProps) {
+  const t = useTranslations('CodeGenerator');
   const [selectedLang, setSelectedLang] = useState(0);
   const [snippet, setSnippet] = useState('');
 
   useEffect(() => {
     if (!requestState.url) {
-      setSnippet('Enter a URL to generate a code snippet.');
+      setSnippet(t('placeholder'));
       return;
     }
 
     const { lang, variant } = languages[selectedLang];
     generateCodeSnippet(requestState, lang, variant)
       .then(setSnippet)
-      .catch((err) => setSnippet(`Error generating snippet: ${err.message}`));
-  }, [requestState, selectedLang]);
+      .catch((err) => setSnippet(t('error', { errorMessage: err.message })));
+  }, [requestState, selectedLang, t]);
 
   return (
     <div style={{ marginTop: '1rem' }}>
-      <h4>Generated Code</h4>
+      <h4>{t('title')}</h4>
       <select
         value={selectedLang}
         onChange={(e) => setSelectedLang(Number(e.target.value))}

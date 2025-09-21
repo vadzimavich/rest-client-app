@@ -2,7 +2,8 @@
 
 import CodeMirror from '@uiw/react-codemirror';
 import { json } from '@codemirror/lang-json';
-import { vscodeDark } from '@uiw/codemirror-theme-vscode'; // theme can be changed
+import { vscodeDark } from '@uiw/codemirror-theme-vscode';
+import { useTranslations } from 'next-intl';
 
 interface ResponseData {
   status: number;
@@ -19,12 +20,14 @@ interface ResponseViewerProps {
 }
 
 export default function ResponseViewer({ data, loading }: ResponseViewerProps) {
+  const t = useTranslations('ResponseViewer');
+
   if (loading) {
-    return <div>Loading response...</div>;
+    return <div>{t('loading')}</div>;
   }
 
   if (!data) {
-    return <div>Send a request to see the response here.</div>;
+    return <div>{t('placeholder')}</div>;
   }
 
   let formattedBody = data.body;
@@ -37,21 +40,21 @@ export default function ResponseViewer({ data, loading }: ResponseViewerProps) {
 
   return (
     <div>
-      <h3>Response</h3>
+      <h3>{t('title')}</h3>
 
       <div style={{ display: 'flex', gap: '1rem', marginBottom: '1rem' }}>
         <span>
-          <strong>Status:</strong> {data.status} {data.statusText}
+          <strong>{t('statusLabel')}:</strong> {data.status} {data.statusText}
         </span>
         <span>
-          <strong>Time:</strong> {data.duration} ms
+          <strong>{t('timeLabel')}:</strong> {data.duration} ms
         </span>
         <span>
-          <strong>Size:</strong> {data.size} bytes
+          <strong>{t('sizeLabel')}:</strong> {data.size} bytes
         </span>
       </div>
 
-      <h4>Body:</h4>
+      <h4>{t('bodyTitle')}:</h4>
 
       <CodeMirror
         value={formattedBody}

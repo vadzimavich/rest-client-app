@@ -1,5 +1,5 @@
 import { describe, it, expect, vi } from 'vitest';
-import { render, screen } from '@testing-library/react';
+import { render, screen } from '@/test-utils/test-utils';
 import ResponseViewer from './ResponseViewer';
 
 vi.mock('@uiw/react-codemirror', () => ({
@@ -11,13 +11,13 @@ vi.mock('@uiw/react-codemirror', () => ({
 describe('ResponseViewer', () => {
   it('should render loading state', () => {
     render(<ResponseViewer data={null} loading={true} />);
-    expect(screen.getByText(/loading response/i)).toBeInTheDocument();
+    expect(screen.getByText('Loading response...')).toBeInTheDocument();
   });
 
   it('should render placeholder when no data is provided', () => {
     render(<ResponseViewer data={null} loading={false} />);
     expect(
-      screen.getByText(/send a request to see the response/i)
+      screen.getByText('Send a request to see the response here.')
     ).toBeInTheDocument();
   });
 

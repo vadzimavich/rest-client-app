@@ -2,6 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import PrivateRoute from '@/components/PrivateRoute';
+import { useTranslations } from 'next-intl';
 
 interface Variable {
   id: string;
@@ -12,6 +13,7 @@ interface Variable {
 const STORAGE_KEY = 'rest-client-variables';
 
 export default function VariablesPage() {
+  const t = useTranslations('VariablesPage');
   const [variables, setVariables] = useState<Variable[]>([]);
   const [newKey, setNewKey] = useState('');
   const [newValue, setNewValue] = useState('');
@@ -45,21 +47,21 @@ export default function VariablesPage() {
 
   return (
     <PrivateRoute>
-      <h1>Variables</h1>
+      <h1>{t('title')}</h1>
       <div>
         <input
           type="text"
-          placeholder="Key"
+          placeholder={t('keyPlaceholder')}
           value={newKey}
           onChange={(e) => setNewKey(e.target.value)}
         />
         <input
           type="text"
-          placeholder="Value"
+          placeholder={t('valuePlaceholder')}
           value={newValue}
           onChange={(e) => setNewValue(e.target.value)}
         />
-        <button onClick={handleAddVariable}>Add Variable</button>
+        <button onClick={handleAddVariable}>{t('addButton')}</button>
       </div>
 
       <ul style={{ listStyle: 'none', marginTop: '2rem' }}>
@@ -70,7 +72,7 @@ export default function VariablesPage() {
               onClick={() => handleRemoveVariable(variable.id)}
               style={{ marginLeft: '1rem' }}
             >
-              Delete
+              {t('deleteButton')}
             </button>
           </li>
         ))}

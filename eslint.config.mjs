@@ -44,7 +44,7 @@ const eslintConfig = [
       "react-compiler/react-compiler": "error",
       ...react.configs.recommended.rules,
       ...react.configs["jsx-runtime"].rules,
-      
+
       ...tseslint.configs.strict.rules,
       "@typescript-eslint/no-explicit-any": "error",
 
@@ -74,6 +74,7 @@ const eslintConfig = [
       "build/",
       "next-env.d.ts",
       "coverage/",
+      "src/test-utils/test-utils.tsx",
     ],
   },
 ];
