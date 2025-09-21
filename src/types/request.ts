@@ -1,7 +1,7 @@
 export type HttpMethod = 'GET' | 'POST' | 'PUT' | 'DELETE' | 'PATCH';
 
 export interface RequestHeader {
-  id: string; // unique key
+  id: string;
   key: string;
   value: string;
 }
@@ -33,4 +33,5 @@ export interface HistoryItem {
   };
   duration: number;
   timestamp: FirestoreTimestamp;
+  error?: string;
 }

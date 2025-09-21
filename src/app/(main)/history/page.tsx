@@ -53,35 +53,69 @@ export default async function HistoryPage() {
     <PrivateRoute>
       <div className={styles.container}>
         <h1 className={styles.title}>History</h1>
+
         {historyItems.length === 0 ? (
-          <div>
+          <div className={styles.empty}>
             <p>You haven&apos;t executed any requests yet.</p>
             <Link href="/client" className={styles.link}>Go to REST Client</Link>
           </div>
         ) : (
-          <ul className={styles.historyList}>
-            {historyItems.map((item) => {
-              const params = new URLSearchParams();
-              params.set('method', item.request.method);
-              params.set('url', safeEncode(item.request.url));
-              params.set('body', safeEncode(item.request.body));
+          <table className={styles.table}>
+            <thead>
+              <tr>
+                <th>Method</th>
+                <th>URL</th>
+                <th>Status</th>
+                <th>Req Size</th>
+                <th>Resp Size</th>
+                <th>Duration (ms)</th>
+                <th>Timestamp</th>
+                <th>Error</th>
+              </tr>
+            </thead>
+            <tbody>
+              {historyItems.map((item) => {
+                const params = new URLSearchParams();
+                params.set('method', item.request.method);
+                params.set('url', safeEncode(item.request.url));
+                params.set('body', safeEncode(item.request.body));
 
-              Object.entries(item.request.headers).forEach(([key, value]) => {
-                params.set(key, value);
-              });
+                Object.entries(item.request.headers).forEach(([key, value]) => {
+                  params.set(key, value);
+                });
 
-              const href = `/client?${params.toString()}`;
+                const href = `/client?${params.toString()}`;
 
-              return (
-                <li key={item.id} className={styles.historyItem}>
-                  <Link href={href} className={styles.link}>
-                    <span className={styles.method}>{item.request.method}</span>
-                    <span>{item.request.url}</span>
-                  </Link>
-                </li>
-              );
-            })}
-          </ul>
+                const date = new Date(item.timestamp._seconds * 1000).toLocaleString();
+
+                return (
+                  <tr key={item.id}>
+                    <td>{item.request.method}</td>
+                    <td>
+                      <Link href={href} className={styles.link}>
+                        {item.request.url}
+                      </Link>
+                    </td>
+                    <td
+                      className={`${styles.status} ${item.response.status >= 200 && item.response.status < 300
+                          ? styles.success
+                          : item.response.status >= 400 && item.response.status < 500
+                            ? styles.clientError
+                            : styles.serverError
+                        }`}
+                    >
+                      {item.response.status}
+                    </td>
+                    <td>{item.request.body ? new Blob([JSON.stringify(item.request.body)]).size : 0}</td>
+                    <td>{item.response.size}</td>
+                    <td>{item.duration}</td>
+                    <td>{date}</td>
+                    <td>{item.error || '-'}</td>
+                  </tr>
+                );
+              })}
+            </tbody>
+          </table>
         )}
       </div>
     </PrivateRoute>
