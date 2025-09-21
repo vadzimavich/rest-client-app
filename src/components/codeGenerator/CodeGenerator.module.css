@@ -17,6 +17,7 @@
 
 .selectWrapper {
   margin-bottom: 0;
+  position: relative;
 }
 
 .langSelect {
