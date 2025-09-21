@@ -1,3 +1,7 @@
+.methodSelectorWrapper {
+  position: relative;
+}
+
 .methodSelector {
   padding: 0 1rem;
   border: none;
@@ -15,4 +19,8 @@
 
 .methodSelector:focus {
   outline: none;
+}
+
+.methodSelectorWrapper::after {
+  content: none;
 }

@@ -4,6 +4,7 @@ import userEvent from '@testing-library/user-event';
 import HeadersEditor from './HeadersEditor';
 
 describe('HeadersEditor', () => {
+  const user = userEvent.setup();
   const initialHeaders = [
     { id: '1', key: 'Content-Type', value: 'application/json' },
   ];
@@ -16,7 +17,6 @@ describe('HeadersEditor', () => {
   });
 
   it('should call onChange when adding a new header', async () => {
-    const user = userEvent.setup();
     const handleChange = vi.fn();
     render(<HeadersEditor headers={initialHeaders} onChange={handleChange} />);
 
@@ -43,20 +43,24 @@ describe('HeadersEditor', () => {
     render(<HeadersEditor headers={initialHeaders} onChange={handleChange} />);
 
     const removeButton = screen.getByLabelText(/remove header/i);
-    await fireEvent.click(removeButton);
+    await user.click(removeButton);
 
     expect(handleChange).toHaveBeenCalledTimes(1);
     expect(handleChange.mock.calls[0][0]).toHaveLength(0);
   });
 
-  it('should call onChange when a header value is changed', async () => {
+  it('should call onChange when a header value is changed', () => {
     const handleChange = vi.fn();
     render(<HeadersEditor headers={initialHeaders} onChange={handleChange} />);
 
     const keyInput = screen.getByDisplayValue('Content-Type');
-    await fireEvent.change(keyInput, { target: { value: 'Accept' } });
+
+    // Используем fireEvent.change для надежной смены значения
+    fireEvent.change(keyInput, { target: { value: 'Accept' } });
 
     expect(handleChange).toHaveBeenCalledTimes(1);
-    expect(handleChange.mock.calls[0][0][0].key).toBe('Accept');
+    const lastCallArgs = handleChange.mock.calls[0];
+    const updatedHeaders = lastCallArgs[0];
+    expect(updatedHeaders[0].key).toBe('Accept');
   });
 });

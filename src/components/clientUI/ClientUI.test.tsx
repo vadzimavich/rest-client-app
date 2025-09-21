@@ -6,8 +6,14 @@ import { useAuth } from '@/hooks/useAuth';
 import type { User } from 'firebase/auth';
 import userEvent from '@testing-library/user-event';
 import ClientUI from './ClientUI';
-import { useDebounce } from '@/hooks/useDebounce';
+import { ReadonlyURLSearchParams } from 'next/navigation';
 
+import * as nextIntlNavigation from '@/navigation';
+import * as nextNavigation from 'next/navigation';
+
+vi.mock('@/components/codeGenerator/CodeGenerator', () => ({
+  default: () => <div data-testid="codegenerator-mock">Code Generator</div>,
+}));
 vi.mock('@uiw/react-codemirror', () => ({
   default: (props: {
     value: string;
@@ -21,15 +27,35 @@ vi.mock('@uiw/react-codemirror', () => ({
     />
   ),
 }));
-
-vi.mock('@/hooks/useDebounce');
-vi.mock('@/hooks/useAuth');
+vi.mock('@/hooks/useAuth', () => ({
+  useAuth: vi.fn(),
+}));
 
 describe('ClientUI', () => {
   const user = userEvent.setup();
+  const mockFetch = vi.fn();
+
+  const mockRouterReplace = vi.fn();
+  const mockUseRouter = () => ({
+    replace: mockRouterReplace,
+    push: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(),
+    refresh: vi.fn(),
+  });
 
   beforeEach(() => {
     vi.clearAllMocks();
+
+    const stableSearchParams = new URLSearchParams() as ReadonlyURLSearchParams;
+
+    vi.spyOn(nextIntlNavigation, 'useRouter').mockReturnValue(mockUseRouter());
+    vi.spyOn(nextIntlNavigation, 'usePathname').mockReturnValue('/client');
+    vi.spyOn(nextNavigation, 'useSearchParams').mockReturnValue(
+      stableSearchParams
+    );
+
     vi.mocked(useAuth).mockReturnValue({
       user: {
         email: 'test@user.com',
@@ -37,11 +63,12 @@ describe('ClientUI', () => {
       } as User,
       loading: false,
     });
-    global.fetch = vi.fn().mockResolvedValue({
+
+    mockFetch.mockResolvedValue({
       ok: true,
       json: () => Promise.resolve({ status: 200, body: 'OK' }),
     });
-    vi.mocked(useDebounce).mockImplementation((value) => value);
+    vi.spyOn(global, 'fetch').mockImplementation(mockFetch);
   });
 
   it('should render the main components of the REST client', () => {
@@ -53,18 +80,42 @@ describe('ClientUI', () => {
     expect(screen.getByRole('button', { name: /body/i })).toBeInTheDocument();
   });
 
-  it('should update the URL input when user types', async () => {
+  it('should update the URL input when user types and update router params', async () => {
     render(<ClientUI />);
+
+    await waitFor(() => {
+      expect(mockRouterReplace).toHaveBeenCalledTimes(1);
+    });
+
     const urlInput = screen.getByPlaceholderText(
       /https:\/\/api\.example\.com/i
     );
-    await user.type(urlInput, 'https://my-test-api.com');
-    expect(urlInput).toHaveValue('https://my-test-api.com');
+    const testUrl = 'https://my-test-api.com';
+    await user.type(urlInput, testUrl);
+    expect(urlInput).toHaveValue(testUrl);
+
+    await waitFor(() => {
+      expect(mockRouterReplace).toHaveBeenCalledTimes(2);
+    });
+
+    const secondCallArgs = mockRouterReplace.mock.calls[1];
+    const calledPath = secondCallArgs[0];
+
+    const fullUrl = new URL(`http://localhost${calledPath}`);
+    const urlParam = fullUrl.searchParams.get('url');
+
+    expect(urlParam).not.toBeNull();
+
+    if (urlParam) {
+      expect(atob(urlParam)).toBe(testUrl);
+    }
   });
 
   it('should prettify JSON in the body editor', async () => {
     render(<ClientUI />);
-    await user.click(screen.getByRole('button', { name: /body/i }));
+    const bodyTabButton = screen.getByRole('button', { name: /body/i });
+    await user.click(bodyTabButton);
+
     const bodyEditor = screen.getByTestId('request-body-editor');
     const prettifyButton = screen.getByRole('button', {
       name: /prettify json/i,
@@ -74,39 +125,54 @@ describe('ClientUI', () => {
     await user.click(prettifyButton);
 
     const expectedPrettyJson = JSON.stringify({ a: 1, b: 2 }, null, 2);
-
     expect(bodyEditor).toHaveValue(expectedPrettyJson);
   });
 
   it('should call fetch with correct parameters on Send button click', async () => {
+    mockFetch.mockResolvedValue({
+      ok: true,
+      json: () => Promise.resolve({ status: 200, body: 'OK' }),
+    } as Response);
+
     render(<ClientUI />);
     const urlInput = screen.getByPlaceholderText(
       /https:\/\/api\.example\.com/i
     );
     const sendButton = screen.getByRole('button', { name: /send/i });
+
     await user.type(urlInput, 'https://my-api.com/data');
     await user.click(sendButton);
+
     await waitFor(() => {
-      expect(global.fetch).toHaveBeenCalledTimes(1);
+      expect(mockFetch).toHaveBeenCalledTimes(1);
     });
+
+    const [fetchUrl, fetchOptions] = mockFetch.mock.calls[0];
+    expect(fetchUrl).toBe('/api/proxy');
+    if (fetchOptions?.body) {
+      const body = JSON.parse(fetchOptions.body as string);
+      expect(body.url).toBe('https://my-api.com/data');
+    }
   });
 
   it('should display an error message when fetch fails', async () => {
-    (global.fetch as vi.Mock).mockRejectedValue(
-      new Error('Network request failed')
-    );
+    mockFetch.mockRejectedValue(new Error('Network request failed'));
+
     render(<ClientUI />);
     const sendButton = screen.getByRole('button', { name: /send/i });
+
     await user.click(sendButton);
 
     expect(
-      await screen.findByText(/network request failed/i, {}, { timeout: 2000 })
+      await screen.findByText(/network request failed/i)
     ).toBeInTheDocument();
   });
 
   it('should display an error when trying to prettify invalid JSON', async () => {
     render(<ClientUI />);
-    await user.click(screen.getByRole('button', { name: /body/i }));
+    const bodyTabButton = screen.getByRole('button', { name: /body/i });
+    await user.click(bodyTabButton);
+
     const bodyEditor = screen.getByTestId('request-body-editor');
     const prettifyButton = screen.getByRole('button', {
       name: /prettify json/i,

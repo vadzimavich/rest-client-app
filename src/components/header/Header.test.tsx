@@ -16,9 +16,18 @@ vi.mock('next-intl', async (importOriginal) => {
 });
 
 describe('Header', () => {
+  const user = userEvent.setup();
+
   beforeEach(() => {
     vi.clearAllMocks();
     vi.mocked(useLocale).mockReturnValue('en');
+
+    global.fetch = vi.fn(() =>
+      Promise.resolve({
+        ok: true,
+        json: () => Promise.resolve({ status: 'success' }),
+      } as Response)
+    );
   });
 
   it('should render Sign In and Sign Up links when user is not authenticated', () => {
@@ -47,44 +56,11 @@ describe('Header', () => {
     });
     render(<Header />);
     const signOutButton = screen.getByRole('button', { name: /sign out/i });
-    await userEvent.click(signOutButton);
+    await user.click(signOutButton);
     expect(signOut).toHaveBeenCalledTimes(1);
-  });
-
-  it('should render loading state', () => {
-    vi.mocked(useAuth).mockReturnValue({ user: null, loading: true });
-    render(<Header />);
-    expect(screen.getByText(/loading.../i)).toBeInTheDocument();
-  });
-
-  it('should render Sign In and Sign Up links when user is not authenticated', () => {
-    vi.mocked(useAuth).mockReturnValue({ user: null, loading: false });
-    render(<Header />);
-    expect(screen.getByRole('link', { name: /sign in/i })).toBeInTheDocument();
-    expect(screen.getByRole('link', { name: /sign up/i })).toBeInTheDocument();
-  });
-
-  it('should render Welcome message and Sign Out button when user is authenticated', () => {
-    vi.mocked(useAuth).mockReturnValue({
-      user: { email: 'test@example.com' } as User,
-      loading: false,
+    expect(global.fetch).toHaveBeenCalledWith('/api/auth/session', {
+      method: 'DELETE',
     });
-    render(<Header />);
-    expect(screen.getByText(/welcome, test/i)).toBeInTheDocument();
-    expect(
-      screen.getByRole('button', { name: /sign out/i })
-    ).toBeInTheDocument();
-  });
-
-  it('should call signOut when the sign out button is clicked', async () => {
-    vi.mocked(useAuth).mockReturnValue({
-      user: { email: 'test@example.com' } as User,
-      loading: false,
-    });
-    render(<Header />);
-    const signOutButton = screen.getByRole('button', { name: /sign out/i });
-    await userEvent.click(signOutButton);
-    expect(signOut).toHaveBeenCalledTimes(1);
   });
 
   it('should render loading state', () => {
@@ -98,7 +74,7 @@ describe('Header', () => {
     const { rerender } = render(<Header />);
     const languageSelect = screen.getByRole('combobox');
     expect(languageSelect).toHaveValue('en');
-    await userEvent.selectOptions(languageSelect, 'ru');
+    await user.selectOptions(languageSelect, 'ru');
     vi.mocked(useLocale).mockReturnValue('ru');
     rerender(<Header />);
     expect(languageSelect).toHaveValue('ru');
@@ -120,7 +96,7 @@ describe('Header', () => {
     vi.mocked(useAuth).mockReturnValue({ user: null, loading: false });
     render(<Header />);
     const languageSelect = screen.getByRole('combobox');
-    await userEvent.selectOptions(languageSelect, 'ru');
+    await user.selectOptions(languageSelect, 'ru');
     expect(mockRouter.replace).toHaveBeenCalledTimes(1);
     expect(mockRouter.replace).toHaveBeenCalledWith('/', { locale: 'ru' });
     routerSpy.mockRestore();
@@ -138,39 +114,13 @@ describe('Header', () => {
     });
     render(<Header />);
     const signOutButton = screen.getByRole('button', { name: /sign out/i });
-    await userEvent.click(signOutButton);
+    await user.click(signOutButton);
     await vi.waitFor(() => {
       expect(consoleErrorSpy).toHaveBeenCalledWith(
         'Error signing out: ',
         signOutError
       );
     });
-    consoleErrorSpy.mockRestore();
-  });
-
-  it('should handle errors when signing out', async () => {
-    const consoleErrorSpy = vi
-      .spyOn(console, 'error')
-      .mockImplementation(() => {});
-    const signOutError = new Error('Sign out failed');
-    vi.mocked(signOut).mockRejectedValue(signOutError);
-
-    vi.mocked(useAuth).mockReturnValue({
-      user: { email: 'test@example.com' } as User,
-      loading: false,
-    });
-    render(<Header />);
-
-    const signOutButton = screen.getByRole('button', { name: /sign out/i });
-    await userEvent.click(signOutButton);
-
-    await vi.waitFor(() => {
-      expect(consoleErrorSpy).toHaveBeenCalledWith(
-        'Error signing out: ',
-        signOutError
-      );
-    });
-
     consoleErrorSpy.mockRestore();
   });
 

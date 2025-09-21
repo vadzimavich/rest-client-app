@@ -22,6 +22,8 @@ vi.mock('@codemirror/language', async (importOriginal) => {
 });
 
 describe('CodeGenerator', () => {
+  const user = userEvent.setup();
+
   it('should display a placeholder message when no URL is provided', () => {
     const emptyRequestState: RequestState = {
       method: 'GET',
@@ -77,7 +79,7 @@ describe('CodeGenerator', () => {
     });
 
     const languageSelect = screen.getByRole('combobox');
-    await userEvent.selectOptions(languageSelect, '1');
+    await user.selectOptions(languageSelect, '1');
 
     await waitFor(() => {
       expect(generateSpy).toHaveBeenCalledTimes(2);

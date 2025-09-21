@@ -8,6 +8,10 @@ vi.mock('@/navigation', () => ({
   useRouter: () => ({
     push: vi.fn(),
     replace: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(),
+    refresh: vi.fn(),
   }),
   usePathname: () => '/',
   Link: ({ href, children }: { href: string; children: React.ReactNode }) =>
@@ -18,6 +22,10 @@ vi.mock('next/navigation', () => ({
   useRouter: () => ({
     push: vi.fn(),
     replace: vi.fn(),
+    back: vi.fn(),
+    forward: vi.fn(),
+    prefetch: vi.fn(),
+    refresh: vi.fn(),
   }),
   usePathname: () => '/',
   useSearchParams: () => new URLSearchParams(),
