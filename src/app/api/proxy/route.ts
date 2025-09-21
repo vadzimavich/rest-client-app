@@ -59,7 +59,6 @@ export async function POST(request: Request) {
     };
 
     return NextResponse.json(responseData, { status: 200 });
-
   } catch (error: unknown) {
     let errorMessage = 'An unexpected network error occurred.';
 

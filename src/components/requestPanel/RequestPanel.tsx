@@ -11,6 +11,7 @@ import { vscodeDark } from '@uiw/codemirror-theme-vscode';
 import CodeGenerator from "@/components/codeGenerator/CodeGenerator";
 import Tabs from "@/components/tabs/Tabs";
 import styles from './RequestPanel.module.css';
+import { getVariables, substituteVariables } from '@/lib/variables'; 
 
 interface RequestPanelProps {
   requestState: RequestState;
@@ -45,15 +46,28 @@ export default function RequestPanel({
     setIsLoading(true);
     setResponseData(null);
     setError(null);
-    try {
-      const headersObject = requestState.headers.reduce((acc, header) => {
-        if (header.key) acc[header.key] = header.value;
-        return acc;
-      }, {} as Record<string, string>);
+    try {  
+      const variables = getVariables();
+      const finalUrl = substituteVariables(requestState.url, variables);
+      const finalHeaders = requestState.headers.map((header) => ({
+        ...header,
+        value: substituteVariables(header.value, variables),
+      }));
+      const finalBody = substituteVariables(requestState.body, variables);
+
+      const headersObject = finalHeaders.reduce(
+        (acc, header) => {
+          if (header.key) {
+            acc[header.key] = header.value;
+          }
+          return acc;
+        },
+        {} as Record<string, string>
+      );
 
       let parsedBody: unknown;
       try {
-        parsedBody = requestState.body ? JSON.parse(requestState.body) : null;
+        parsedBody = requestState.body ? JSON.parse(finalBody) : null;
       } catch {
         parsedBody = requestState.body;
       }
@@ -63,7 +77,7 @@ export default function RequestPanel({
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           method: requestState.method,
-          url: requestState.url,
+          url: finalUrl, 
           headers: headersObject,
           body: parsedBody,
         }),

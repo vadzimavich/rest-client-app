@@ -43,6 +43,9 @@ export default function HomePage() {
               <Link href="/history" className={styles.button}>
                 History
               </Link>
+              <Link href="/variables" className={styles.button}>
+                Variables
+              </Link>
             </nav>
           </>
         )}
