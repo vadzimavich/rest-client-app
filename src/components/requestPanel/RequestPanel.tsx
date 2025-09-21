@@ -106,7 +106,15 @@ export default function RequestPanel({
         />
 
         <div className={styles.bodyEditor}>
-          <button onClick={handlePrettify}>Prettify JSON</button>
+          <div className={styles.prettifyWrapper}>
+            <button
+              onClick={handlePrettify}
+              className={styles.sendButton}
+            >
+              Prettify JSON
+            </button>
+          </div>
+
           <CodeMirror
             value={requestState.body}
             height="200px"
@@ -115,6 +123,8 @@ export default function RequestPanel({
             onChange={value => setRequestState(prev => ({ ...prev, body: value }))}
           />
         </div>
+
+
       </Tabs>
 
       <CodeGenerator requestState={requestState} />

@@ -52,3 +52,30 @@
   opacity: 0.6;
   cursor: not-allowed;
 }
+
+.sendButton {
+  height: 38px;
+  padding: 0 1rem;
+  border: none;
+  border-radius: 6px;
+  background-color: var(--accent);
+  color: #fff;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.2s ease-in-out;
+}
+
+.sendButton:hover:not(:disabled) {
+  background-color: #23c2c8;
+}
+
+.sendButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.prettifyWrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1.5rem;
+}
