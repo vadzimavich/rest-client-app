@@ -1,0 +1,86 @@
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.35rem 1.5rem;
+    border-bottom: 1px solid var(--accent);
+    position: sticky;
+    top: 0;
+    background-color: var(--header-bg);
+    z-index: 50;
+    transition: padding 0.3s ease-in-out, background-color 0.3s ease-in-out;
+    will-change: padding, background-color, height;
+}
+
+.header.scrolled {
+    position: sticky;
+    padding: 0.85rem 1.5rem;
+    background-color: var(--header-bg-scrolled);
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.nav {
+    display: flex;
+    align-items: center;
+    gap: 1.5rem;
+}
+
+.link {
+    text-decoration: none;
+    color: var(--foreground);
+    font-weight: 600;
+    font-family: var(--font-heading);
+    transition: color 0.2s ease;
+}
+
+.link:hover {
+    color: var(--accent);
+    text-decoration: none;
+    color: var(--accent-hover);
+}
+
+.button {
+    margin-left: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: none;
+    outline: 1px var(--accent) solid;
+    border-radius: 8px;
+    background-color: var(--header-bg);
+    color: var(--foreground);
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-family: var(--font-heading);
+    transition: background-color 0.2s;
+}
+
+.button:hover {
+    background-color: var(--accent-hover);
+    text-decoration: none;
+}
+
+.langToggle {
+    margin-right: 1rem;
+    padding: 0.5rem 1.5rem 0.5rem 0.5rem;
+    border: none;
+    border-radius: 4px;
+    background-color: #1b1b1b;
+    background-image: url("/arrow.svg");
+    background-repeat: no-repeat;
+    background-position: right 0.5rem center;
+    background-size: 0.75rem auto;
+    cursor: pointer;
+    font-size: 0.8rem;
+    appearance: none;
+    -webkit-appearance: none;
+    -moz-appearance: none;
+}
+
+.langToggle:hover {
+    cursor: pointer;
+    border-color: #999;
+}
+
+.langToggle:focus {
+    outline: none;
+    box-shadow: 0 0 4px rgba(0, 0, 0, 0.2);
+}

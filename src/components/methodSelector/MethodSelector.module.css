@@ -1,0 +1,29 @@
+.methodSelectorWrapper {
+  display: flex;
+  position: relative;
+  align-items: center;
+  border-right: 1px solid var(--input-border);
+}
+
+.methodSelector {
+  padding: 0 1rem;
+  border: none;
+  background-color: transparent;
+  color: var(--accent-light);
+  font-family: var(--font-heading);
+  font-weight: 700;
+  font-size: 1rem;
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  transition: color 0.2s ease-in-out;
+}
+
+.methodSelector:hover {
+  color: var(--accent);
+}
+
+.methodSelector:focus {
+  outline: none;
+}

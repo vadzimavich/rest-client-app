@@ -1,0 +1,66 @@
+import { describe, it, expect, vi } from 'vitest';
+import { render, screen, fireEvent } from '@/test-utils/test-utils';
+import userEvent from '@testing-library/user-event';
+import HeadersEditor from './HeadersEditor';
+
+describe('HeadersEditor', () => {
+  const user = userEvent.setup();
+  const initialHeaders = [
+    { id: '1', key: 'Content-Type', value: 'application/json' },
+  ];
+
+  it('should render initial headers correctly', () => {
+    render(<HeadersEditor headers={initialHeaders} onChange={vi.fn()} />);
+
+    expect(screen.getByDisplayValue('Content-Type')).toBeInTheDocument();
+    expect(screen.getByDisplayValue('application/json')).toBeInTheDocument();
+  });
+
+  it('should call onChange when adding a new header', async () => {
+    const handleChange = vi.fn();
+    render(<HeadersEditor headers={initialHeaders} onChange={handleChange} />);
+
+    const keyInputs = screen.getAllByPlaceholderText('Key');
+    const valueInputs = screen.getAllByPlaceholderText('Value');
+
+    const newKeyInput = keyInputs[keyInputs.length - 1];
+    const newValueInput = valueInputs[valueInputs.length - 1];
+
+    const addButton = screen.getByRole('button', { name: /add header/i });
+
+    await user.type(newKeyInput, 'Authorization');
+    await user.type(newValueInput, 'Bearer 123');
+    await user.click(addButton);
+
+    expect(handleChange).toHaveBeenCalledTimes(1);
+    const lastCallArgs = handleChange.mock.calls[0][0];
+    expect(lastCallArgs).toHaveLength(2);
+    expect(lastCallArgs[1].key).toBe('Authorization');
+  });
+
+  it('should call onChange when removing a header', async () => {
+    const handleChange = vi.fn();
+    render(<HeadersEditor headers={initialHeaders} onChange={handleChange} />);
+
+    const removeButton = screen.getByLabelText(/remove header/i);
+    await user.click(removeButton);
+
+    expect(handleChange).toHaveBeenCalledTimes(1);
+    expect(handleChange.mock.calls[0][0]).toHaveLength(0);
+  });
+
+  it('should call onChange when a header value is changed', () => {
+    const handleChange = vi.fn();
+    render(<HeadersEditor headers={initialHeaders} onChange={handleChange} />);
+
+    const keyInput = screen.getByDisplayValue('Content-Type');
+
+    // Используем fireEvent.change для надежной смены значения
+    fireEvent.change(keyInput, { target: { value: 'Accept' } });
+
+    expect(handleChange).toHaveBeenCalledTimes(1);
+    const lastCallArgs = handleChange.mock.calls[0];
+    const updatedHeaders = lastCallArgs[0];
+    expect(updatedHeaders[0].key).toBe('Accept');
+  });
+});

@@ -1,0 +1,83 @@
+.requestRow {
+  display: flex;
+  align-items: stretch;
+  border-radius: 8px;
+  overflow: hidden;
+  background: var(--input-bg);
+  margin-bottom: 2rem;
+  height: 48px;
+  border: 1px solid var(--input-border);
+}
+
+.requestRow:focus-within {
+  border-color: var(--input-focus-border);
+  box-shadow: 0 0 0 2px rgba(92, 42, 211, 0.4);
+}
+
+.requestRow input {
+  flex: 1;
+  padding: 0 1rem;
+  border: none;
+  background: transparent;
+  color: var(--foreground);
+  font-size: 1rem;
+  font-family: var(--font-mono);
+  outline: none;
+}
+
+.sendButton {
+  padding: 0 1.5rem;
+  border: none;
+  background-color: var(--accent);
+  color: var(--button-color);
+  font-family: var(--font-heading);
+  font-weight: 400;
+  font-size: 1.2rem;
+  cursor: pointer;
+  transition: all 0.3s;
+}
+
+.sendButton:hover:not(:disabled) {
+  background-color: var(--accent-hover);
+}
+
+.sendButton:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.bodyEditorContainer {
+  border: 1px solid var(--input-border);
+  border-radius: 8px;
+  overflow: hidden;
+}
+
+.editorActions {
+  display: flex;
+  justify-content: flex-end;
+  padding: 0;
+  background-color: var(--card-bg);
+  border-bottom: 1px solid var(--input-border);
+}
+
+.prettifyButton {
+  padding: 1rem 1.5rem;
+  outline: 1px var(--input-border) solid;
+  background-color: transparent;
+  color: var(--foreground);
+  opacity: 0.8;
+  cursor: pointer;
+  transition: all 0.2s;
+  border: none;
+  font-family: var(--font-body);
+  font-size: 1rem;
+}
+
+.prettifyButton:hover {
+  opacity: 1;
+  background-color: var(--input-bg);
+}
+
+.codeMirror {
+  font-family: var(--font-mono);
+}

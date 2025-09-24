@@ -1,0 +1,43 @@
+.selectWrapper {
+  position: relative;
+  display: inline-block;
+}
+
+.select {
+  padding: 0.5rem 2rem 0.5rem 0.75rem;
+  border: 1px solid var(--input-border);
+  border-radius: 6px;
+  background-color: var(--input-bg);
+  color: var(--foreground);
+  font-family: var(--font-heading);
+  font-weight: 600;
+  cursor: pointer;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  appearance: none;
+  transition: border-color 0.2s;
+}
+
+.select:hover {
+  border-color: var(--input-focus-border);
+}
+
+.select:focus {
+  outline: none;
+  border-color: var(--input-focus-border);
+}
+
+.selectWrapper::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  right: 0.75rem;
+  width: 16px;
+  height: 16px;
+  transform: translateY(-50%);
+  background-image: url('/arrow.svg');
+  background-repeat: no-repeat;
+  background-position: center;
+  pointer-events: none;
+  filter: var(--arrow-filter);
+}

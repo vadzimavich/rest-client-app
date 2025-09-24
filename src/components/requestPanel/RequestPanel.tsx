@@ -1,0 +1,174 @@
+import { Dispatch, SetStateAction } from 'react';
+import { useAuth } from '@/hooks/useAuth';
+import { useTranslations } from 'next-intl';
+import { RequestState } from '@/types/request';
+import { ResponseData } from '@/types/response';
+import MethodSelector from '@/components/methodSelector/MethodSelector';
+import HeadersEditor from '@/components/headersEditor/HeadersEditor';
+import CodeMirror from '@uiw/react-codemirror';
+import { json } from '@codemirror/lang-json';
+import { vscodeDark } from '@uiw/codemirror-theme-vscode';
+import CodeGenerator from '@/components/codeGenerator/CodeGenerator';
+import Tabs from '@/components/tabs/Tabs';
+import styles from './RequestPanel.module.css';
+import { getVariables, substituteVariables } from '@/lib/variables';
+
+interface RequestPanelProps {
+  requestState: RequestState;
+  setRequestState: Dispatch<SetStateAction<RequestState>>;
+  setResponseData: Dispatch<SetStateAction<ResponseData | null>>;
+  setIsLoading: Dispatch<SetStateAction<boolean>>;
+  setError: Dispatch<SetStateAction<string | null>>;
+  isLoading: boolean;
+}
+
+export default function RequestPanel({
+  requestState,
+  setRequestState,
+  setResponseData,
+  setIsLoading,
+  setError,
+  isLoading,
+}: RequestPanelProps) {
+  const t = useTranslations('ClientUI');
+  const { user } = useAuth();
+
+  const handlePrettify = () => {
+    if (!requestState.body) return;
+    try {
+      const prettyBody = JSON.stringify(JSON.parse(requestState.body), null, 2);
+      setRequestState((prev) => ({ ...prev, body: prettyBody }));
+      setError(null);
+    } catch {
+      setError(t('prettifyError'));
+    }
+  };
+
+  const handleSendRequest = async () => {
+    setIsLoading(true);
+    setResponseData(null);
+    setError(null);
+
+    if (!user) {
+      setError(t('authError'));
+      setIsLoading(false);
+      return;
+    }
+
+    try {
+      const idToken = await user.getIdToken();
+
+      const variables = getVariables();
+      const finalUrl = substituteVariables(requestState.url, variables);
+      const finalHeaders = requestState.headers.map((header) => ({
+        ...header,
+        value: substituteVariables(header.value, variables),
+      }));
+      const finalBody = substituteVariables(requestState.body, variables);
+
+      const headersObject = finalHeaders.reduce(
+        (acc, header) => {
+          if (header.key) {
+            acc[header.key] = header.value;
+          }
+          return acc;
+        },
+        {} as Record<string, string>
+      );
+
+      let parsedBody: unknown;
+      try {
+        parsedBody = requestState.body ? JSON.parse(finalBody) : null;
+      } catch {
+        parsedBody = requestState.body;
+      }
+
+      const response = await fetch('/api/proxy', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          Authorization: `Bearer ${idToken}`,
+        },
+        body: JSON.stringify({
+          method: requestState.method,
+          url: finalUrl,
+          headers: headersObject,
+          body: parsedBody,
+        }),
+      });
+
+      const data: ResponseData = await response.json();
+
+      if (!response.ok || data.error) {
+        throw new Error(data.error || 'Unknown proxy error');
+      }
+
+      setResponseData(data);
+    } catch (err: unknown) {
+      if (err instanceof Error) setError(err.message);
+      else setError('An unexpected error occurred.');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  return (
+    <div className={styles.requestPanel}>
+      <div className={styles.requestRow}>
+        <MethodSelector
+          value={requestState.method}
+          onChange={(method) =>
+            setRequestState((prev) => ({ ...prev, method }))
+          }
+          className={styles.methodSelect}
+        />
+        <input
+          type="text"
+          placeholder="https://api.example.com"
+          value={requestState.url}
+          onChange={(e) =>
+            setRequestState((prev) => ({ ...prev, url: e.target.value }))
+          }
+        />
+        <button
+          onClick={handleSendRequest}
+          className={styles.sendButton}
+          disabled={isLoading}
+        >
+          {isLoading ? t('sendingButton') : t('sendButton')}
+        </button>
+      </div>
+
+      <Tabs labels={[t('headersTitle'), t('bodyTitle')]}>
+        <HeadersEditor
+          headers={requestState.headers}
+          onChange={(headers) =>
+            setRequestState((prev) => ({ ...prev, headers }))
+          }
+        />
+
+        <div className={styles.bodyEditorContainer}>
+          <div className={styles.editorActions}>
+            <button onClick={handlePrettify} className={styles.prettifyButton}>
+              {t('prettifyButton')}
+            </button>
+          </div>
+
+          <CodeMirror
+            className={styles.codeMirror}
+            value={requestState.body}
+            height="200px"
+            extensions={[json()]}
+            theme={vscodeDark}
+            onChange={(value: string) =>
+              setRequestState((prev) => ({ ...prev, body: value }))
+            }
+            data-testid="request-body-editor"
+          />
+        </div>
+      </Tabs>
+
+      <CodeGenerator requestState={requestState} />
+    </div>
+  );
+}

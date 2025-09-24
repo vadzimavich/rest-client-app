@@ -1,0 +1,53 @@
+.container {
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+.meta {
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+}
+
+.metaItem {
+  font-size: 1rem;
+  padding: 0.3rem 0.6rem;
+  border-radius: 6px;
+  background: #222;
+  color: #ddd;
+}
+
+.statusSuccess {
+  background: #05600533;
+  color: #398e3c;
+}
+
+.statusWarning {
+  background: #e5ad0633;
+  color: #ffc107;
+}
+
+.statusError {
+  background: #d1362a33;
+  color: #c7251a;
+}
+
+.title,
+.subtitle {
+  font-size: 1.25rem;
+  margin-bottom: 0.5rem;
+}
+
+.bodyContainer {
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 0.5rem;
+  background: transparent;
+  height: 100%;
+}
+
+.message {
+  font-style: italic;
+  color: #999;
+}
